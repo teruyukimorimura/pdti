@@ -1,0 +1,31 @@
+body{
+    font: 80% "Trebuchet MS", sans-serif;
+    margin: 50px;
+}
+
+td {
+    white-space: nowrap;
+}
+
+input[type="text"] {
+    width: 700px;
+}
+
+div#navbar {
+    margin-bottom: 50px;
+}
+
+div#version {
+    margin-top: 50px;
+    text-align: right;
+    color: #999999;
+}
+
+.greylink {
+    color: #999999;
+}
+
+.ui-accordion-header {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}

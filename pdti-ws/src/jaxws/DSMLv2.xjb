@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings
+    jaxb:version="2.1"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
+    <jaxb:bindings schemaLocation="../schema/DSML/DSMLv2.xsd" node="/xsd:schema">
+        <jaxb:bindings node="xsd:complexType[@name='DsmlMessage']/xsd:attribute[@name='requestID']">
+            <!--
+            Binding for renaming the requestID attribute property in DsmlMessage.
+            -->
+            <jaxb:property name="requestId"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="xsd:complexType[@name='BatchRequest']/xsd:attribute[@name='requestID']">
+            <!--
+            Binding for renaming the requestID attribute property in BatchRequest.
+            -->
+            <jaxb:property name="requestId"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="xsd:complexType[@name='BatchResponse']/xsd:attribute[@name='requestID']">
+            <!--
+            Binding for renaming the requestID attribute property in BatchResponse.
+            -->
+            <jaxb:property name="requestId"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="xsd:complexType[@name='ErrorResponse']/xsd:attribute[@name='type']/xsd:simpleType">
+            <!--
+            Binding for generating an enumeration from the ErrorResponse type attribute anonymous simpleType.
+            -->
+            <jaxb:typesafeEnumClass name="ErrorType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="xsd:complexType[@name='ErrorResponse']/xsd:attribute[@name='requestID']">
+            <!--
+            Binding for renaming the requestID attribute property in ErrorResponse.
+            -->
+            <jaxb:property name="requestId"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="xsd:complexType[@name='SearchResponse']/xsd:attribute[@name='requestID']">
+            <!--
+            Binding for renaming the requestID attribute property in SearchResponse.
+            -->
+            <jaxb:property name="requestId"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+ </jaxb:bindings>

@@ -1,0 +1,367 @@
+package gov.hhs.onc.pdti.client.actions;
+
+import gov.hhs.onc.pdti.client.types.ProviderDirectoryTypes;
+import gov.hhs.onc.pdti.client.wrappers.SearchResultWrapper;
+import gov.hhs.onc.pdti.ws.api.AttributeValueAssertion;
+import gov.hhs.onc.pdti.ws.api.BatchRequest;
+import gov.hhs.onc.pdti.ws.api.BatchResponse;
+import gov.hhs.onc.pdti.ws.api.DsmlAttr;
+import gov.hhs.onc.pdti.ws.api.ErrorResponse;
+import gov.hhs.onc.pdti.ws.api.Filter;
+import gov.hhs.onc.pdti.ws.api.ProviderInformationDirectoryService;
+import gov.hhs.onc.pdti.ws.api.SearchRequest;
+import gov.hhs.onc.pdti.ws.api.SearchResponse;
+import gov.hhs.onc.pdti.ws.api.SearchResultEntry;
+import gov.hhs.onc.pdti.ws.api.hpdplus.HpdPlusError;
+import gov.hhs.onc.pdti.ws.api.hpdplus.HpdPlusProviderInformationDirectoryService;
+import gov.hhs.onc.pdti.ws.api.hpdplus.HpdPlusRequest;
+import gov.hhs.onc.pdti.ws.api.hpdplus.HpdPlusResponse;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import javax.xml.bind.JAXBElement;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.opensymphony.xwork2.validator.annotations.RequiredFieldValidator;
+import com.opensymphony.xwork2.validator.annotations.Validations;
+import com.opensymphony.xwork2.validator.annotations.ValidatorType;
+
+public class Search extends BaseAction {
+
+    private static final long serialVersionUID = -7807158769818341299L;
+    private static final Logger LOGGER = Logger.getLogger(Search.class);
+    private static final String OU = "ou=";
+    private static final String COMMA = ",";
+    private static final String DN = "dn";
+    private static final String SINGLE_LEVEL = "singleLevel";
+    private static final String DEREF_FINDING_BASE_OBJ = "derefFindingBaseObj";
+    private static final String PERIOD = ".";
+    private static final String JAXB_TYPE_ERROR_MESSAGE_PREAMBLE = "Unknown JAXBElement value: ";
+    private static final String PD_TYPE_ERROR_MESSAGE_PREAMBLE = "Unknown Provider Directory type: ";
+    private static final String HPDPLUS_RESPONSE_ITEM_TYPE_ERROR_MESSAGE_PREAMBLE =
+            "Unknown HPDPlus response item type: ";
+    private static final String SEARCH_ATTRIBUTE_PARAM_NAME = "searchAttribute";
+    private static final String SEARCH_STRING_PARAM_NAME = "searchString";
+    private static final String REQUIRED_FIELD_MESSAGE = "This field is required.";
+    private static final String WSDL_PROPERTY_NAME = "provider.directory.wsdl.url";
+    private static final String DETAILS = "details";
+    private static final String NO_ID = "NO ID (DSML DIRECTORY)";
+    private final String defaultUrl = getText(WSDL_PROPERTY_NAME);
+
+    private gov.hhs.onc.pdti.ws.api.ObjectFactory dsmlBasedObjectFactory = new gov.hhs.onc.pdti.ws.api.ObjectFactory();
+    private gov.hhs.onc.pdti.ws.api.hpdplus.ObjectFactory hpdPlusObjectFactory =
+            new gov.hhs.onc.pdti.ws.api.hpdplus.ObjectFactory();
+
+    private String url;
+    private String providerDirectoryType;
+    private String requestId;
+    private String typeToSearch;
+    private String searchAttribute;
+    private String searchString;
+    private String[] attributesToRetrieve;
+    private SearchResultWrapper[] searchResults = new SearchResultWrapper[0];
+    private SearchResultWrapper searchResultToDetail;
+    private Boolean showDetails;
+    private String dn;
+    private List<String> searchErrorMessages = new ArrayList<String>();
+
+    @Validations(requiredFields = {
+            @RequiredFieldValidator(type = ValidatorType.SIMPLE, fieldName = SEARCH_ATTRIBUTE_PARAM_NAME, message = REQUIRED_FIELD_MESSAGE),
+            @RequiredFieldValidator(type = ValidatorType.SIMPLE, fieldName = SEARCH_STRING_PARAM_NAME, message = REQUIRED_FIELD_MESSAGE) })
+    public String execute() {
+        LOGGER.debug("execute() called...");
+        LOGGER.debug("url =" + url + "=");
+        LOGGER.debug("showDetails =" + showDetails + "=");
+        LOGGER.debug("requestId =" + requestId + "=");
+        URL wsdlUrl = null;
+        try {
+            if (!StringUtils.isEmpty(url)) {
+                wsdlUrl = new URL(url);
+            } else {
+                wsdlUrl = new URL(getText(WSDL_PROPERTY_NAME));
+            }
+            LOGGER.debug("wsdlUrl =" + wsdlUrl + "=");
+        } catch (MalformedURLException malformedURLException) {
+            getSearchErrorMessages().add(malformedURLException.getMessage());
+            LOGGER.error(malformedURLException);
+            return ERROR;
+        }
+        if (providerDirectoryType.equals(ProviderDirectoryTypes.DSML_WSDL.toString())) {
+            doDsmlSearch(wsdlUrl);
+        } else if (providerDirectoryType.equals(ProviderDirectoryTypes.HPDPlus.toString())) {
+            doHpdPlusSearch(wsdlUrl);
+        } else {
+            String errorMessage = PD_TYPE_ERROR_MESSAGE_PREAMBLE + providerDirectoryType + PERIOD;
+            LOGGER.error(errorMessage);
+            searchErrorMessages.add(errorMessage);
+            return ERROR;
+        }
+        if (searchErrorMessages.size() > 0) {
+            return ERROR;
+        }
+        if (Boolean.TRUE.equals(showDetails)) {
+            return DETAILS;
+        } else {
+            return SUCCESS;
+        }
+    }
+
+    private void doHpdPlusSearch(URL wsdlUrl) {
+        LOGGER.debug("doHpdPlusSearch(URL)");
+        HpdPlusProviderInformationDirectoryService hpdPlusProviderInformationDirectoryService =
+                new HpdPlusProviderInformationDirectoryService(wsdlUrl);
+        HpdPlusResponse hpdPlusResponse = hpdPlusProviderInformationDirectoryService
+                .getHpdPlusProviderInformationDirectoryPortSoap()
+                .hpdPlusProviderInformationQueryRequest(buildHpdPlusRequest());
+        processHpdPlusResponse(hpdPlusResponse);
+    }
+    
+    private void processHpdPlusResponse(HpdPlusResponse hpdPlusResponse) {
+        LOGGER.debug("processHpdPlusResponse(HpdPlusResponse)");
+        List<HpdPlusError> hpdPlusErrors = hpdPlusResponse.getErrors();
+        if(null != hpdPlusErrors && hpdPlusErrors.size() > 0) {
+            for(HpdPlusError hpdPlusError : hpdPlusErrors) {
+                searchErrorMessages.add(hpdPlusError.getMessage());
+            }
+        }
+        List<Object> responseItems = hpdPlusResponse.getResponseItems();
+        for(Object object : responseItems) {
+            if(object instanceof BatchResponse) {
+                processBatchResponse(hpdPlusResponse.getDirectoryId(), hpdPlusResponse.getDirectoryUri(), (BatchResponse)object);
+            } else if(object instanceof HpdPlusResponse) {
+                processHpdPlusResponse((HpdPlusResponse)object);
+            } else {
+                searchErrorMessages.add(
+                        HPDPLUS_RESPONSE_ITEM_TYPE_ERROR_MESSAGE_PREAMBLE + object.getClass().getName());
+            }
+        }
+    }
+
+    private HpdPlusRequest buildHpdPlusRequest() {
+        LOGGER.debug("buildHpdPlusRequest()");
+        HpdPlusRequest hpdPlusRequest = hpdPlusObjectFactory.createHpdPlusRequest();
+        if(Boolean.TRUE.equals(isShowDetails())) {
+            hpdPlusRequest.setRequestId(UUID.randomUUID().toString());
+        } else {
+            hpdPlusRequest.setRequestId(requestId);
+        }
+        LOGGER.debug("HpdPlusRequest.requestId =" + requestId + "=");
+        hpdPlusRequest.setBatchRequest(buildBatchRequest(true));
+        return hpdPlusRequest;
+    }
+
+    private void doDsmlSearch(URL wsdlUrl) {
+        LOGGER.debug("doDsmlSearch(URL)");
+        ProviderInformationDirectoryService providerInformationDirectoryService =
+                new ProviderInformationDirectoryService(wsdlUrl);
+        BatchResponse batchResponse = providerInformationDirectoryService.getProviderInformationDirectoryPortSoap()
+                .providerInformationQueryRequest(buildBatchRequest(false));
+        List<JAXBElement<?>> batchResponseJAXBElements = batchResponse.getBatchResponses();
+        for (JAXBElement<?> batchResponseJAXBElement : batchResponseJAXBElements) {
+            Object value = batchResponseJAXBElement.getValue();
+            if (value instanceof SearchResponse) {
+                SearchResponse searchResponse = (SearchResponse) value;
+                if (null != searchResponse.getSearchResultDone().getErrorMessage()) {
+                    getSearchErrorMessages().add(searchResponse.getSearchResultDone().getErrorMessage());
+                } else {
+                    processSearchResultEntries(NO_ID, wsdlUrl.toExternalForm(), searchResponse.getSearchResultEntry());
+                }
+            } else if (value instanceof ErrorResponse) {
+                ErrorResponse errorResponse = (ErrorResponse) value;
+                getSearchErrorMessages().add(errorResponse.getMessage());
+            } else {
+                String errorMessage = JAXB_TYPE_ERROR_MESSAGE_PREAMBLE + value.getClass() + PERIOD;
+                LOGGER.error(errorMessage);
+                searchErrorMessages.add(errorMessage);
+            }
+        }
+    }
+    
+    private void processBatchResponse(String directoryId, String directoryUri, BatchResponse batchResponse) {
+        LOGGER.debug("processBatchResponse(BatchRespons)");
+        List<JAXBElement<?>> batchResponseJAXBElements = batchResponse.getBatchResponses();
+        for (JAXBElement<?> batchResponseJAXBElement : batchResponseJAXBElements) {
+            Object value = batchResponseJAXBElement.getValue();
+            if (value instanceof SearchResponse) {
+                SearchResponse searchResponse = (SearchResponse) value;
+                if (null != searchResponse.getSearchResultDone().getErrorMessage()) {
+                    getSearchErrorMessages().add(searchResponse.getSearchResultDone().getErrorMessage());
+                } else {
+                    processSearchResultEntries(directoryId, directoryUri, searchResponse.getSearchResultEntry());
+                }
+            } else if (value instanceof ErrorResponse) {
+                ErrorResponse errorResponse = (ErrorResponse) value;
+                getSearchErrorMessages().add(errorResponse.getMessage());
+            } else {
+                String errorMessage = JAXB_TYPE_ERROR_MESSAGE_PREAMBLE + value.getClass() + PERIOD;
+                LOGGER.error(errorMessage);
+                searchErrorMessages.add(errorMessage);
+            }
+        }
+    }
+
+    private BatchRequest buildBatchRequest(boolean isHpdPlusRequest) {
+        LOGGER.debug("buildBatchRequest()");
+        BatchRequest batchRequest = dsmlBasedObjectFactory.createBatchRequest();
+        SearchRequest searchRequest = dsmlBasedObjectFactory.createSearchRequest();
+        if(!isHpdPlusRequest) {
+            if (!StringUtils.isEmpty(requestId)) {
+                batchRequest.setRequestId(requestId);
+                searchRequest.setRequestId(requestId);
+            }
+        }
+        searchRequest.setDn(OU + typeToSearch + COMMA + getText(DN));
+        searchRequest.setScope(SINGLE_LEVEL);
+        searchRequest.setDerefAliases(DEREF_FINDING_BASE_OBJ);
+        Filter filter = dsmlBasedObjectFactory.createFilter();
+        AttributeValueAssertion attributeValueAssertion = dsmlBasedObjectFactory.createAttributeValueAssertion();
+        attributeValueAssertion.setName(searchAttribute);
+        attributeValueAssertion.setValue(searchString);
+        filter.setEqualityMatch(attributeValueAssertion);
+        // AttributeDescriptions attributeDescriptions = dsmlBasedObjectFactory.createAttributeDescriptions();
+        // for (String attribute : attributesToRetrieve) {
+        // AttributeDescription attributeDescription = dsmlBasedObjectFactory.createAttributeDescription();
+        // attributeDescription.setName(attribute);
+        // attributeDescriptions.getAttribute().add(attributeDescription);
+        // }
+        // searchRequest.setAttributes(attributeDescriptions);
+        searchRequest.setFilter(filter);
+        batchRequest.getBatchRequests().add(searchRequest);
+        return batchRequest;
+    }
+
+    private void processSearchResultEntries(String directoryId, String directoryUri, List<SearchResultEntry> searchResultEntries) {
+        LOGGER.debug("processSearchResultEntries(List<SearchResultEntry>)");
+        SearchResultWrapper[] newSearchResults = new SearchResultWrapper[searchResultEntries.size()];
+        int index = 0;
+        for (SearchResultEntry searchResultEntry : searchResultEntries) {
+            SearchResultWrapper searchResultWrapper = new SearchResultWrapper();
+            searchResultWrapper.setDn(searchResultEntry.getDn());
+            searchResultWrapper.setDirectoryId(directoryId);
+            searchResultWrapper.setDirectoryUri(directoryUri);
+            List<DsmlAttr> dsmlAttributes = searchResultEntry.getAttr();
+            Map<String, List<String>> attributesMap = new TreeMap<String, List<String>>();
+            for (DsmlAttr dsmlAttribute : dsmlAttributes) {
+                String attributeName = dsmlAttribute.getName();
+                List<String> attributeValues = new ArrayList<String>();
+                for (String attributeValue : dsmlAttribute.getValue()) {
+                    attributeValues.add(attributeValue);
+                }
+                attributesMap.put(attributeName, attributeValues);
+            }
+            searchResultWrapper.setAttributes(attributesMap);
+            newSearchResults[index] = searchResultWrapper;
+            index++;
+            if (Boolean.TRUE.equals(showDetails)) {
+                if (dn.equals(searchResultEntry.getDn())) {
+                    searchResultToDetail = searchResultWrapper;
+                    searchResults = null;
+                    break;
+                }
+            }
+        }
+        searchResults = ArrayUtils.addAll(searchResults, newSearchResults);
+    }
+
+    public void setTypeToSearch(String typeToSearch) {
+        this.typeToSearch = typeToSearch;
+    }
+
+    public void setSearchAttribute(String searchAttribute) {
+        this.searchAttribute = searchAttribute;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getTypeToSearch() {
+        return typeToSearch;
+    }
+
+    public String getSearchAttribute() {
+        return searchAttribute;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public SearchResultWrapper[] getSearchResults() {
+        return searchResults;
+    }
+
+    public List<String> getSearchErrorMessages() {
+        return searchErrorMessages;
+    }
+
+    public String[] getAttributesToRetrieve() {
+        return attributesToRetrieve;
+    }
+
+    public void setAttributesToRetrieve(String[] attributesToRetrieve) {
+        this.attributesToRetrieve = attributesToRetrieve;
+    }
+
+    public SearchResultWrapper getSearchResultToDetail() {
+        return searchResultToDetail;
+    }
+
+    public void setSearchResultToDetail(SearchResultWrapper searchResultToDetail) {
+        this.searchResultToDetail = searchResultToDetail;
+    }
+
+    public Boolean isShowDetails() {
+        return showDetails;
+    }
+
+    public void setShowDetails(Boolean showDetails) {
+        this.showDetails = showDetails;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getDn() {
+        return dn;
+    }
+
+    public void setDn(String dn) {
+        this.dn = dn;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getProviderDirectoryType() {
+        return providerDirectoryType;
+    }
+
+    public void setProviderDirectoryType(String providerDirectoryType) {
+        this.providerDirectoryType = providerDirectoryType;
+    }
+    
+    public String getDefaultUrl() {
+        return defaultUrl;
+    }
+
+}

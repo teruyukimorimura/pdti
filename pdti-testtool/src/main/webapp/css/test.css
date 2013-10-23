@@ -1,0 +1,50 @@
+em {
+    font-weight: bold;
+}
+
+span.wsdlUrl {
+    padding: 2px;
+    border: 1px dashed black;
+    font-family: monospace;
+}
+
+div#testResults {
+    height: 100%;
+    margin: 10px 0 -160px 0;
+}
+
+table {
+	margin: 50px;
+}
+
+table#testResultsTable {
+    width: 100%;
+}
+
+th.testResultsHeader {
+    border: 1px solid black;
+}
+
+tr {
+    vertical-align:middle;
+}
+
+tr.testResultsRow {
+}
+
+.testResultsText {
+    border: 1px dotted black;
+}
+
+.centered {
+    text-align: center; 
+    vertical-align: middle;
+}
+
+.validationerror {
+	color: #b94a48;
+}
+
+.validationerrorinput {
+	border-color: #b94a48 !important;
+}

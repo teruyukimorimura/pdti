@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="wsimport-fix">
+    <description>Ant project for fixing the output of wsimport.</description>
+    
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${maven.plugin.classpath.value}"/>
+    
+    <target name="remove-package-descriptors" description="Removes generated package descriptor Java source files.">
+        <delete quiet="true">
+            <fileset dir="${project.build.directory}/generated-sources/wsimport">
+                <include name="**/package-info.java"/>
+            </fileset>
+        </delete>
+    </target>
+</project>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <beans:bean id="dirCacheDescriptorTest2" class="gov.hhs.onc.pdti.cache.impl.DirectoryCacheDescriptorImpl" parent="dirCacheDescriptor"
+        p:cleanUpInterval="5000"
+        p:concurrencyLevel="10"
+        p:expireAfterWrite="5m"
+        p:initialCapacity="50"
+        p:maximumSize="150">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="MAIN"/>
+    </beans:bean>
+    
+    <task:scheduled-tasks scheduler="dirScheduler">
+        <task:scheduled ref="dirCache" method="cleanUp" trigger="dirCacheCleanUpTrigger"/>
+    </task:scheduled-tasks>
+    
+    <beans:bean id="dirTest2" class="gov.hhs.onc.pdti.data.impl.DirectoryDescriptorImpl" parent="mainDir"
+        p:directoryId="%{project.test.server.2.dir.id}"
+        p:baseDn="%{project.test.server.2.dir.dn.base}"
+        p:wsdlLocation="%{project.test.server.2.dir.wsdl.location}">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="IHE"/>
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="MAIN"/>
+    </beans:bean>
+    
+    <beans:bean id="hpdPlusDirTest2" class="gov.hhs.onc.pdti.data.impl.DirectoryDescriptorImpl" parent="mainDir"
+        p:directoryId="%{project.test.server.2.dir.id}"
+        p:baseDn="%{project.test.server.2.dir.dn.base}"
+        p:wsdlLocation="%{project.test.server.2.dir.wsdl.location.hpdplus}">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="HPD_PLUS_PROPOSED"/>
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="MAIN"/>
+    </beans:bean>
+</beans:beans>

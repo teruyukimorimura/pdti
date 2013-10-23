@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-settings xmlns:con="http://eviware.com/soapui/config">
+    <con:setting id="HttpSettings@close-connections">true</con:setting>
+    <con:setting id="HttpSettings@include_request_in_time_taken">true</con:setting>
+    <con:setting id="HttpSettings@include_response_in_time_taken">true</con:setting>
+    <con:setting id="WsdlSettings@cache-wsdls">false</con:setting>
+    <con:setting id="WsdlSettings@pretty-print-project-files">true</con:setting>
+    <con:setting id="WsdlSettings@pretty-print-response-xml">true</con:setting>
+    <con:setting id="WsdlSettings@type-comment">true</con:setting>
+</con:soapui-settings>

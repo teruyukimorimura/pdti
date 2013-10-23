@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxws:bindings
+    version="2.0"
+    wsdlLocation="../wsdl/HPD_ProviderInformationDirectory.wsdl"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
+    <jaxws:bindings node="/wsdl:definitions">
+        <!--
+        Binding for setting the package for the WSDL.
+        -->
+        <jaxws:package name="gov.hhs.onc.pdti.ws.api"/>
+    </jaxws:bindings>
+    
+    <jaxws:bindings node="/wsdl:definitions/wsdl:types/xsd:schema[@targetNamespace='urn:oasis:names:tc:DSML:2:0:core']">
+        <!--
+        Binding for setting the package for the DSMLv2 schema.
+        -->
+        <jaxb:schemaBindings>
+            <jaxb:package name="gov.hhs.onc.pdti.ws.api"/>
+        </jaxb:schemaBindings>
+    </jaxws:bindings>
+    <jaxws:bindings node="/wsdl:definitions/wsdl:types/xsd:schema[@targetNamespace='urn:ihe:iti:hpd:2010']">
+        <!--
+        Binding for setting the package for the HPD schema.
+        -->
+        <jaxb:schemaBindings>
+            <jaxb:package name="gov.hhs.onc.pdti.ws.api"/>
+        </jaxb:schemaBindings>
+    </jaxws:bindings>
+</jaxws:bindings>

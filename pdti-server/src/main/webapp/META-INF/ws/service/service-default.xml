@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:oxm="http://www.springframework.org/schema/oxm"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:sws="http://www.springframework.org/schema/web-services"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:ws="http://jax-ws.dev.java.net/spring/core"
+    xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://jax-ws.dev.java.net/spring/core http://jax-ws.dev.java.net/spring/core.xsd
+        http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <!-- Defining web services -->
+    <wss:binding url="/ProviderInformationDirectoryService">
+        <wss:service>
+            <ws:service
+                bean="#providerInfoDir"
+                bindingID="http://www.w3.org/2003/05/soap/bindings/HTTP/"/>
+        </wss:service>
+    </wss:binding>
+    <wss:binding url="/Hpd_Plus_ProviderInformationDirectoryService">
+        <wss:service>
+            <ws:service
+                bean="#hpdPlusProviderInfoDir"
+                bindingID="http://www.w3.org/2003/05/soap/bindings/HTTP/"/>
+        </wss:service>
+    </wss:binding>
+</beans:beans>

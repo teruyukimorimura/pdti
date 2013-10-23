@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <beans:bean id="federatedDirTest1" class="gov.hhs.onc.pdti.data.impl.DirectoryDescriptorImpl" parent="federatedDir"
+        p:directoryId="%{project.test.server.2.dir.id}"
+        p:baseDn="%{project.test.server.2.dir.dn.base}"
+        p:wsdlLocation="%{project.test.server.2.dir.wsdl.location}">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="IHE"/>
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="FEDERATED"/>
+    </beans:bean>
+    
+    <beans:bean id="hpdPlusFederatedDirTest1" class="gov.hhs.onc.pdti.data.impl.DirectoryDescriptorImpl" parent="federatedDir"
+        p:directoryId="%{project.test.server.2.dir.id}"
+        p:baseDn="%{project.test.server.2.dir.dn.base}"
+        p:wsdlLocation="%{project.test.server.2.dir.wsdl.location.hpdplus}">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="HPD_PLUS_PROPOSED"/>
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="FEDERATED"/>
+    </beans:bean>
+</beans:beans>

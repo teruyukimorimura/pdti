@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <beans:bean id="dirCacheDescriptor" class="gov.hhs.onc.pdti.cache.DirectoryCacheDescriptor" abstract="true"/>
+    
+    <beans:bean id="dirDescriptor" class="gov.hhs.onc.pdti.data.DirectoryDescriptor" abstract="true"/>
+    
+    <beans:bean id="mainDir" parent="dirDescriptor" abstract="true">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="MAIN"/>
+    </beans:bean>
+    
+    <beans:bean id="dirDataSource" class="gov.hhs.onc.pdti.data.DirectoryDataSource" abstract="true"/>
+    
+    <beans:bean id="ldapDataSource" class="gov.hhs.onc.pdti.data.ldap.LdapDataSource" parent="dirDataSource" abstract="true"/>
+    
+    <beans:bean id="federatedDir" parent="dirDescriptor" abstract="true">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryType" value="FEDERATED"/>
+    </beans:bean>
+</beans:beans>

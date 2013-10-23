@@ -1,0 +1,1 @@
+<title><s:text name="title" /></title>

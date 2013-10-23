@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test-apacheds">
+    <description>Ant project for the test ApacheDS instances.</description>
+    
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${maven.plugin.classpath.value}"/>
+    
+    <property name="ldapHost" value="localhost"/>
+    
+    <macrodef name="apacheds" description="Calls the ApacheDS test instance wrapper.">
+        <attribute name="instance"/>
+        <attribute name="jmxPort"/>
+        <attribute name="ldapHost"/>
+        <attribute name="ldapPort"/>
+        <attribute name="dataPartName" default=""/>
+        <attribute name="dataPartSuffix" default=""/>
+        <attribute name="dataLdifFile" default=""/>
+        <attribute name="cmd"/>
+        <attribute name="spawn" default="false"/>
+        <element name="java-elements" implicit="true" optional="true"/>
+        <sequential>
+            <var name="instanceDir" value="${project.build.directory}/apacheds/@{ldapHost}-@{ldapPort}_@{instance}"/>
+            <var name="readyFile" value="${instanceDir}/run/apacheds.ready"/>
+            <var name="logDir" value="${project.test.log.dir}"/>
+            <var name="logFileBasename" value="pdti-apacheds-@{ldapHost}-@{ldapPort}_@{instance}"/>
+            <mkdir dir="${project.build.directory}/apacheds"/>
+            <mkdir dir="${logDir}"/>
+            <java
+                classname="gov.hhs.onc.pdti.test.ldap.ApacheDsInstanceRunner"
+                fork="true"
+                spawn="@{spawn}">
+                <classpath>
+                    <path refid="maven.classpath"/>
+                </classpath>
+                <java-elements/>
+                <sysproperty key="pdti.test.apacheds.instance" value="@{instance}"/>
+                <sysproperty key="pdti.test.apacheds.jmx.port" value="@{jmxPort}"/>
+                <sysproperty key="pdti.test.apacheds.ldap.host" value="@{ldapHost}"/>
+                <sysproperty key="pdti.test.apacheds.ldap.port" value="@{ldapPort}"/>
+                <sysproperty key="pdti.test.apacheds.data.partition.name" value="@{dataPartName}"/>
+                <sysproperty key="pdti.test.apacheds.data.partition.suffix" value="@{dataPartSuffix}"/>
+                <sysproperty key="pdti.test.apacheds.data.ldif.file" value="@{dataLdifFile}"/>
+                <sysproperty key="pdti.test.apacheds.instance.dir" value="${instanceDir}"/>
+                <sysproperty key="pdti.log.dir" value="${logDir}"/>
+                <sysproperty key="pdti.log.file.basename" value="${logFileBasename}"/>
+                <arg value="@{cmd}"/>
+            </java>
+            <if>
+                <equals arg1="@{cmd}" arg2="start"/>
+                <then>
+                    <waitfor checkevery="1" checkeveryunit="second" maxwait="2" maxwaitunit="minute">
+                        <available file="${readyFile}"/>
+                    </waitfor>
+                </then>
+                <elseif>
+                    <equals arg1="@{cmd}" arg2="stop"/>
+                    <then>
+                        <waitfor checkevery="1" checkeveryunit="second" maxwait="2" maxwaitunit="minute">
+                            <not>
+                                <available file="${readyFile}"/>
+                            </not>
+                        </waitfor>
+                    </then>
+                </elseif>
+            </if>
+        </sequential>
+    </macrodef>
+    
+    <target name="apacheds-start" description="Target for starting an ApacheDS test instance.">
+        <echo level="info" taskname="info">Starting ApacheDS test instance (num=${instance}, jmxPort=${jmxPort}) on ${ldapHost}:${ldapPort} ...</echo>
+        <apacheds instance="${instance}" jmxPort="${jmxPort}" ldapHost="${ldapHost}" ldapPort="${ldapPort}" dataPartName="${dataPartName}"
+            dataPartSuffix="${dataPartSuffix}" dataLdifFile="${dataLdifFile}" cmd="start" spawn="true">
+            <jvmarg value="-Xms128m"/>
+            <jvmarg value="-Xmx256m"/>
+            <sysproperty key="com.sun.management.jmxremote" value="true"/>
+            <sysproperty key="com.sun.management.jmxremote.port" value="${jmxPort}"/>
+            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
+        </apacheds>
+        <echo level="info" taskname="info">Started ApacheDS test instance (num=${instance}, jmxPort=${jmxPort}) on ${ldapHost}:${ldapPort}.</echo>
+    </target>
+    
+    <target name="apacheds-stop" description="Target for stopping an ApacheDS test instance.">
+        <echo level="info" taskname="info">Stopping ApacheDS test instance (num=${instance}, jmxPort=${jmxPort}) on ${ldapHost}:${ldapPort} ...</echo>
+        <apacheds instance="${instance}" jmxPort="${jmxPort}" ldapHost="${ldapHost}" ldapPort="${ldapPort}" cmd="stop"/>
+        <echo level="info" taskname="info">Stopped ApacheDS test instance (num=${instance}, jmxPort=${jmxPort}) on ${ldapHost}:${ldapPort}.</echo>
+    </target>
+</project>

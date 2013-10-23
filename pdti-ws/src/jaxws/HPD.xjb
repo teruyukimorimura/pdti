@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings
+    jaxb:version="2.1"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
+    <jaxb:bindings schemaLocation="../schema/HPD/HPD.xsd" node="/xsd:schema">
+        <!-- TODO: implement -->
+    </jaxb:bindings>
+ </jaxb:bindings>

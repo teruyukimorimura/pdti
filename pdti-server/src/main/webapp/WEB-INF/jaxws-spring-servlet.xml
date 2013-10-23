@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:oxm="http://www.springframework.org/schema/oxm"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:sws="http://www.springframework.org/schema/web-services"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services.xsd">
+    
+    <!-- Enabling Spring component scanning in the project package -->
+    <context:component-scan base-package="gov.hhs.onc.pdti"/>
+    
+    <!-- Defining task executor -->
+    <task:executor id="dirExecutor" pool-size="1" queue-capacity="5"/>
+    
+    <!-- Defining task scheduler -->
+    <task:scheduler id="dirScheduler" pool-size="1"/>
+    
+    <!-- Enabling annotation driven tasks -->
+    <task:annotation-driven executor="dirExecutor" scheduler="dirScheduler"/>
+    
+    <!-- Enabling annotation driven Spring web services -->
+    <sws:annotation-driven marshaller="dirJaxb2Marshaller" unmarshaller="dirJaxb2Marshaller"/>
+    
+    <!-- Defining custom Spring conversion service -->
+    <beans:bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <beans:property name="converters">
+            <util:list>
+                <beans:ref bean="dirEnumIdConverterFactory"/>
+                <beans:ref bean="dnConverter"/>
+            </util:list>
+        </beans:property>
+    </beans:bean>
+    
+    <!-- Defining JAXB object factories as beans -->
+    <beans:bean id="objectFactory" class="gov.hhs.onc.pdti.ws.api.ObjectFactory">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="IHE"/>
+    </beans:bean>
+    <beans:bean id="hpdPlusObjectFactory" class="gov.hhs.onc.pdti.ws.api.hpdplus.ObjectFactory">
+        <beans:qualifier type="gov.hhs.onc.pdti.DirectoryStandard" value="HPD_PLUS_PROPOSED"/>
+    </beans:bean>
+    
+    <!-- Defining custom JAXB v2 marshaller -->
+    <beans:bean id="dirJaxb2Marshaller" class="gov.hhs.onc.pdti.jaxb.impl.DirectoryJaxb2MarshallerImpl"
+        p:checkForXmlRootElement="false"
+        p:contextPackages="#{ { objectFactory.class.package, hpdPlusObjectFactory.class.package } }">
+        <beans:property name="marshallerProperties">
+            <util:map>
+                <beans:entry key="#{ T(javax.xml.bind.Marshaller).JAXB_FORMATTED_OUTPUT }" value="#{ true }"/>
+            </util:map>
+        </beans:property>
+        <beans:property name="schemas">
+            <util:list>
+                <beans:value>classpath*:META-INF/schema/DSML/DSMLv2.xsd</beans:value>
+                <beans:value>classpath*:META-INF/schema/HPD/HPD.xsd</beans:value>
+                <beans:value>classpath*:META-INF/schema/HPD_Plus/HPD_Plus.xsd</beans:value>
+            </util:list>
+        </beans:property>
+    </beans:bean>
+    
+    <!-- Defining custom SOAP message factory -->
+    <beans:bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory">
+        <!-- Forcing the use of SOAP v1.2 -->
+        <beans:property name="soapVersion">
+            <util:constant static-field="org.springframework.ws.soap.SoapVersion.SOAP_12"/>
+        </beans:property>
+    </beans:bean>
+</beans:beans>
