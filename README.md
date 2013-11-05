@@ -18,6 +18,19 @@ You need to have a few services running, including tomcat-7, and LDAP server.  Y
 
 
 
+
+Dependencies
+===========
+
+    Name                      Minimum Version
+    Mercurial client          2.2
+    Java JDK + JRE            7 (Oracle or OpenJDK)
+    Apache Maven              3.04
+    Apache Tomcat             7.0
+    Apache Directory Studio   1.5.x
+    ApacheDS				  2.0
+
+
 Server Configuration
 ====================
 
@@ -78,6 +91,17 @@ Add the following code in /etc/maven/settings.xml somewhere between the "profile
             </properties>
     </profile>
 
+Download the Source Code & Compile
+==================================
+
+Fetch the software from GitHub
+
+    git clone https://github.com/siteadmin/pdti.git
+    cd pdti
+    mvn -Dtomcat.manager.password=admin clean install tomcat7:deploy
+
+This step take approximatley 10 minutes.
+
 Setup LDAP with ApacheDS and Apache Directory Studio
 ====================================================
 
@@ -109,30 +133,33 @@ After this file is decompressed with tar then you can start the executable
 
     ./ApacheDirectoryStudio-linux-x86_64-2.0.0.v20130628/ApacheDirectoryStudio &
 
-You now need to create a server. Here is a quick video overview that introduces how to do that.  
+You now need to create a server. Here is a quick video overview that introduces how to do that.
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/xJr1hJVo2So" frameborder="0" allowfullscreen></iframe>
-
-
-Be sure and follow the steps outlined in http://modularspecs.siframework.org/Provider+Directories+Installation+Guide to import data into your LDAP server.
+http://www.youtube.com/watch?v=xJr1hJVo2So
 
 
-Download Source, Build, and Deploy
-----------------------------------
-
-Clone the GitHub Repository
-
-    git clone https://github.com/meaningfuluse/pdti
+Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">
 
 
-Build from source code and deploy on Tomcat7.
 
-In the next step, we are assuming the Tomcat manager password is "admin".
 
-	cd pdti
-	mvn -Dtomcat.manager.password=<Tomcat manager password> clean install tomcat7:deploy
 
-This will build and deploy the software on localhost. This step may take some time to complete.  It took about 15 minutes on an Tntel i5 dual core processor (circa 2011).
+After creating the partition, start the server, by right clicking the icon in the bottom left corner and click "Run". After it starts, right click again and click "Create a Connection". this will create a connection to the LDAP server you just created. In the top left part of the screen you will see the connection and a globe icon that says "o=dev.provider-directories.com,dc=hpd". Right click on this and select "Import" and then "Import LDIF" files to get to the LDIF Import dialoge.  Be sure to check the "Update existing entries" and "Continue on error" as shown below.
+<img src="http://oncsiteadmin.s3.amazonaws.com/LDIFimport.png">
+
+
+import the LDAP schemas as LDIF files in this order:
+
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hc.ldif
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/pkcs9.ldif
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hpd_plus.ldif
+
+
+
+SOAP-UI Tests
+-------------
+
+TODO
 
 
 Websites of Importance:
