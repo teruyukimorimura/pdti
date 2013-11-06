@@ -83,18 +83,25 @@ public class Search extends BaseAction {
         LOGGER.debug("showDetails =" + showDetails + "=");
         LOGGER.debug("requestId =" + requestId + "=");
         URL wsdlUrl = null;
+
         try {
             if (!StringUtils.isEmpty(url)) {
                 wsdlUrl = new URL(url);
             } else {
-                wsdlUrl = new URL(getText(WSDL_PROPERTY_NAME));
+                String baseUrl = ProviderDirectoryTypes.getUrl(providerDirectoryType);
+                LOGGER.debug("------------------------");
+                LOGGER.debug(baseUrl);
+                LOGGER.debug("------------------------");
+                //wsdlUrl = new URL(new URL(baseUrl), ProviderDirectoryTypes.getUrl(providerDirectoryType));
+                wsdlUrl = new URL(baseUrl);
             }
-            LOGGER.debug("wsdlUrl =" + wsdlUrl + "=");
+            LOGGER.debug("wsdlUrl = " + wsdlUrl);
         } catch (MalformedURLException malformedURLException) {
             getSearchErrorMessages().add(malformedURLException.getMessage());
             LOGGER.error(malformedURLException);
             return ERROR;
-        }
+        } 
+
         if (providerDirectoryType.equals(ProviderDirectoryTypes.DSML_WSDL.toString())) {
             doDsmlSearch(wsdlUrl);
         } else if (providerDirectoryType.equals(ProviderDirectoryTypes.HPDPlus.toString())) {
