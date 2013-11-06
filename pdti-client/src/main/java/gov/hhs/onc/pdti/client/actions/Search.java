@@ -35,7 +35,10 @@ import com.opensymphony.xwork2.validator.annotations.RequiredFieldValidator;
 import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.opensymphony.xwork2.validator.annotations.ValidatorType;
 
-public class Search extends BaseAction {
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts2.interceptor.ServletRequestAware;
+
+public class Search extends BaseAction implements ServletRequestAware {
 
     private static final long serialVersionUID = -7807158769818341299L;
     private static final Logger LOGGER = Logger.getLogger(Search.class);
@@ -74,6 +77,15 @@ public class Search extends BaseAction {
     private String dn;
     private List<String> searchErrorMessages = new ArrayList<String>();
 
+    private HttpServletRequest req = null;
+
+    @Override
+    public void setServletRequest(HttpServletRequest request) {
+        req = request;
+        //HttpSession session = request.getSession();
+        //session.setAttribute("userName", "Tom");
+    }
+
     @Validations(requiredFields = {
             @RequiredFieldValidator(type = ValidatorType.SIMPLE, fieldName = SEARCH_ATTRIBUTE_PARAM_NAME, message = REQUIRED_FIELD_MESSAGE),
             @RequiredFieldValidator(type = ValidatorType.SIMPLE, fieldName = SEARCH_STRING_PARAM_NAME, message = REQUIRED_FIELD_MESSAGE) })
@@ -88,11 +100,7 @@ public class Search extends BaseAction {
             if (!StringUtils.isEmpty(url)) {
                 wsdlUrl = new URL(url);
             } else {
-                String baseUrl = ProviderDirectoryTypes.getUrl(providerDirectoryType);
-                LOGGER.debug("------------------------");
-                LOGGER.debug(baseUrl);
-                LOGGER.debug("------------------------");
-                //wsdlUrl = new URL(new URL(baseUrl), ProviderDirectoryTypes.getUrl(providerDirectoryType));
+                String baseUrl = "http://" + req.getServerName() + ":" + req.getServerPort() + ProviderDirectoryTypes.getUrl(providerDirectoryType);
                 wsdlUrl = new URL(baseUrl);
             }
             LOGGER.debug("wsdlUrl = " + wsdlUrl);
@@ -129,6 +137,7 @@ public class Search extends BaseAction {
         HpdPlusResponse hpdPlusResponse = hpdPlusProviderInformationDirectoryService
                 .getHpdPlusProviderInformationDirectoryPortSoap()
                 .hpdPlusProviderInformationQueryRequest(buildHpdPlusRequest());
+        hpdPlusResponse.setDirectoryUri(wsdlUrl.toString());
         processHpdPlusResponse(hpdPlusResponse);
     }
     
@@ -247,6 +256,8 @@ public class Search extends BaseAction {
     }
 
     private void processSearchResultEntries(String directoryId, String directoryUri, List<SearchResultEntry> searchResultEntries) {
+        LOGGER.debug(directoryId);
+        LOGGER.debug(directoryUri);
         LOGGER.debug("processSearchResultEntries(List<SearchResultEntry>)");
         SearchResultWrapper[] newSearchResults = new SearchResultWrapper[searchResultEntries.size()];
         int index = 0;
