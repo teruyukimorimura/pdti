@@ -14,8 +14,7 @@ The following set of instructions serve as installation notes supplementing the 
 Overview
 ========
 
-You need to have a few services running, including tomcat-7, and LDAP server.  You will also need to install Apche Directory Studio to start ApacheDS, the LDAP server. You could theoreticly use another LDAP server, but these instructions are based on what the development team used.  To my knowledge this software has only been tested with ApacheDS.  You will also need soap-ui to run the soap tests.  The soap-ui project files can be found in  `pdti/pdti-server/src/test/resources/`.The project `soapui-project_hpdplus.xml` covers the Mod Specs WSDL-based on ModSpec (a.k.a. HPD Plus) and the IHE version is found in `soapui-project.xml`.
-
+You need to have a few services running, including tomcat-7, and LDAP server.  You will also need to install Apche Directory Studio to start ApacheDS, the LDAP server. You could theoreticly use another LDAP server, but these instructions are based on what the development team used.  To my knowledge this software has only been tested with ApacheDS.  You will also need soap-ui to run the soap tests.
 
 
 
@@ -102,8 +101,15 @@ Fetch the software from GitHub
 
 This step take approximatley 10 minutes.
 
-Setup LDAP with ApacheDS and Apache Directory Studio
+Setup LDAP with ApacheDS or Apache Directory Studio
 ====================================================
+
+
+ApacheDirectory Studio contains an embedded version of ApacheDS, so you only need one or the 
+other. attempting to run both can result in port conflicts.  You may find that Apache directory Studio is easier in development.
+
+ApacheDS
+--------
 
 
 Install ApacheDS from http://directory.apache.org/apacheds/
@@ -122,6 +128,8 @@ Check the status of ApacheDS
 
 You should see a message that ApcheDS is indeed running.
 
+Apache Directory Studio
+-----------------------
 
 
 Install Apache Directory Studio
@@ -138,7 +146,7 @@ You now need to create a server. Here is a quick video overview that introduces 
 http://www.youtube.com/watch?v=xJr1hJVo2So
 
 
-Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">
+Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">. Changee "example.com" to "provider-directories.com".  To make things easi
 
 
 
@@ -153,13 +161,14 @@ import the LDAP schemas as LDIF files in this order:
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hc.ldif
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/pkcs9.ldif
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hpd_plus.ldif
-
+* pdti/pdti-ldap/src/test/resources/META-INF/ldap/data/hpd_plus_test_data_1.ldif
 
 
 SOAP-UI Tests
 -------------
 
-TODO
+The soap-ui project files can be found in  `pdti/pdti-server/src/test/resources/`.The project `soapui-project_hpdplus.xml` covers the Mod Specs WSDL-based on ModSpec (a.k.a. HPD Plus) and the IHE version is found in `soapui-project.xml`.
+
 
 
 Websites of Importance:
