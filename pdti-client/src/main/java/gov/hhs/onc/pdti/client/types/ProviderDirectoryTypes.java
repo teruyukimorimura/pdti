@@ -26,7 +26,8 @@ public enum ProviderDirectoryTypes {
         }
 
         for (ProviderDirectoryTypes pdt : ProviderDirectoryTypes.values()) {
-            urlLookup.put(pdt.toString(), baseProperties.getProperty("baseAddress") + properties.getProperty(pdt.name()));
+            //urlLookup.put(pdt.toString(), baseProperties.getProperty("baseAddress") + properties.getProperty(pdt.name()));
+            urlLookup.put(pdt.toString(), properties.getProperty(pdt.name()));
         }
     }
 
