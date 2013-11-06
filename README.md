@@ -133,6 +133,8 @@ Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apa
 
 
 After creating the partition, start the server, by right clicking the icon in the bottom left corner and click "Run". After it starts, right click again and click "Create a Connection". this will create a connection to the LDAP server you just created. In the top left part of the screen you will see the connection and a globe icon that says "o=dev.provider-directories.com,dc=hpd". Right click on this and select "Import" and then "Import LDIF" files to get to the LDIF Import dialoge.  Be sure to check the "Update existing entries" and "Continue on error" as shown below.
+
+
 <img src="http://oncsiteadmin.s3.amazonaws.com/LDIFimport.png">
 
 
