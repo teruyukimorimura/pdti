@@ -106,27 +106,7 @@ Setup LDAP with ApacheDS or Apache Directory Studio
 
 
 ApacheDirectory Studio contains an embedded version of ApacheDS, so you only need one or the 
-other. attempting to run both can result in port conflicts.  You may find that Apache directory Studio is easier in development.
-
-ApacheDS
---------
-
-
-Install ApacheDS from http://directory.apache.org/apacheds/
-
-    wget http://apache.osuosl.org//directory/apacheds/dist/2.0.0-M15/apacheds-2.0.0-M15-amd64.deb
-    sudo dpkg -i apacheds-2.0.0-M15-amd64.deb
-
-
-Run ApacheDS
-
-    sudo /etc/init.d/apacheds-2.0.0-M15-default start
-
-Check the status of ApacheDS
-
-    sudo /etc/init.d/apacheds-2.0.0-M15-default status
-
-You should see a message that ApcheDS is indeed running.
+other. attempting to run both can result in port conflicts.  You may find that Apache directory Studio is easier in development.  For ApacheDS in a "headless" configuration, it is easiest to first create the server condiguration, along with the partition you need (suffix o=dev.provider-directories.com,dc=hpd) in Apache Directory Studio, then copy this configuration over to ApacheDS.
 
 Apache Directory Studio
 -----------------------
@@ -146,7 +126,7 @@ You now need to create a server. Here is a quick video overview that introduces 
 http://www.youtube.com/watch?v=xJr1hJVo2So
 
 
-Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">. Changee "example.com" to "provider-directories.com".  To make things easi
+Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">. Change "example.com" to "provider-directories.com".  To make things easi
 
 
 
@@ -156,12 +136,54 @@ After creating the partition, start the server, by right clicking the icon in th
 <img src="http://oncsiteadmin.s3.amazonaws.com/LDIFimport.png">
 
 
-import the LDAP schemas as LDIF files in this order:
+Import the LDAP schemas as LDIF files in this order:
 
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hc.ldif
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/pkcs9.ldif
 * pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hpd_plus.ldif
 * pdti/pdti-ldap/src/test/resources/META-INF/ldap/data/hpd_plus_test_data_1.ldif
+
+
+
+ApacheDS
+--------
+
+
+Install ApacheDS from http://directory.apache.org/apacheds/
+
+    wget http://apache.osuosl.org//directory/apacheds/dist/2.0.0-M15/apacheds-2.0.0-M15-amd64.deb
+    sudo dpkg -i apacheds-2.0.0-M15-amd64.deb
+
+
+Run ApacheDS
+
+    sudo /etc/init.d/apacheds-2.0.0-M15-default start
+
+Check the status of ApacheDS
+
+    sudo /etc/init.d/apacheds-2.0.0-M15-default status
+
+You should see a message that ApcheDS is indeed running. Copy the pre-built server configuration into ApachDS, The restart the server.
+
+    sudo cp pdti/docs/provider-directories.com-LDAP-server-config.ldif /var/lib/apacheds-2.0.0-M15/default/conf/config.ldif
+    sudo /etc/init.d/apacheds-2.0.0-M15-default stop
+    sudo /etc/init.d/apacheds-2.0.0-M15-default start
+
+Check the status one more time for good measure.
+
+    sudo /etc/init.d/apacheds-2.0.0-M15-default status
+
+No that an LDAPserver configuration with the required partition is created, we can load the test data.
+
+Whithin Apache Directory Studio, create a connection to the server and import the LDIF files.  Make sure there is no competing LDAP server running within Apache Directory Studio.
+Import the LDAP schemas as LDIF files in this order:
+
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hc.ldif
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/pkcs9.ldif
+* pdti/pdti-ldap/src/main/resources/META-INF/ldap/schema/hpd_plus.ldif
+* pdti/pdti-ldap/src/test/resources/META-INF/ldap/data/hpd_plus_test_data_1.ldif
+
+
 
 
 SOAP-UI Tests
