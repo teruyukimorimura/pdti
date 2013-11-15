@@ -97,7 +97,7 @@ Fetch the software from GitHub
 
     git clone https://github.com/siteadmin/pdti.git
     cd pdti
-    mvn -Dtomcat.manager.password=admin clean install tomcat7:deploy
+    mvn -Dtomcat.manager.password=managerpass clean install tomcat7:deploy
 
 This step take approximatley 10 minutes.
 
