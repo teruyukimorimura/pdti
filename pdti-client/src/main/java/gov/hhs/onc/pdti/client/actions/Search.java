@@ -82,8 +82,6 @@ public class Search extends BaseAction implements ServletRequestAware {
     @Override
     public void setServletRequest(HttpServletRequest request) {
         req = request;
-        //HttpSession session = request.getSession();
-        //session.setAttribute("userName", "Tom");
     }
 
     @Validations(requiredFields = {
