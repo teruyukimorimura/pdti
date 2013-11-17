@@ -14,7 +14,7 @@ The following set of instructions serve as installation notes supplementing the 
 Overview
 ========
 
-You need to have a few services running, including tomcat-7, and LDAP server.  You will also need to install Apche Directory Studio to start ApacheDS, the LDAP server. You could theoreticly use another LDAP server, but these instructions are based on what the development team used.  To my knowledge this software has only been tested with ApacheDS.  You will also need soap-ui to run the soap tests.
+You need to have a few services running, including tomcat-7, and an LDAP server.  You will also need to install Apche Directory Studio or ApacheDS as the LDAP server. You could theoreticly use another LDAP server, but these instructions are based on what the development team used.  To my knowledge this software has only been tested with ApacheDS.  You will also need soap-ui to run the soap tests.
 
 
 
@@ -42,7 +42,7 @@ Install prerequisites:
 Setup Tomcat 7
 ==============
 
-Now that tomcat is installed and running, Lets change this so it is using OpenJRE-7 instead o OpenJRE7
+Now that tomcat is installed and running, Lets change this so it is using OpenJRE-7 instead o OpenJRE6
 
     sudo apt-get -y install openjdk-7-jre
     sudo update-java-alternatives -s java-1.7.0-openjdk-amd64
@@ -50,7 +50,7 @@ Now that tomcat is installed and running, Lets change this so it is using OpenJR
     ln -s /usr/lib/jvm/java-1.7.0-openjdk-amd64 /usr/lib/jvm/default-java
     service tomcat7 restart
 
-The previous command  will make Java 7 the default system-wide.
+The previous command will make Java 7 the default system-wide.
 
 
 Now let's setup an admin user in Tomcat7.
@@ -105,8 +105,8 @@ Setup LDAP with ApacheDS or Apache Directory Studio
 ====================================================
 
 
-ApacheDirectory Studio contains an embedded version of ApacheDS, so you only need one or the 
-other. attempting to run both can result in port conflicts.  You may find that Apache directory Studio is easier in development.  For ApacheDS in a "headless" configuration, it is easiest to first create the server condiguration, along with the partition you need (suffix o=dev.provider-directories.com,dc=hpd) in Apache Directory Studio, then copy this configuration over to ApacheDS.
+ApacheDirectory Studio contains an embedded version of ApacheDS, so you only need one or the
+other. Attempting to run both can result in port conflicts.  You may find that Apache directory Studio is easier in development.  ApacheDS is better suited for a "headless" configuration, It is easiest to first create the server condiguration, along with the partition you need (suffix o=dev.provider-directories.com,dc=hpd) in Apache Directory Studio, then copy this configuration over to ApacheDS. A suitable LDAP configuration file is not included in the source code.
 
 Apache Directory Studio
 -----------------------
@@ -117,7 +117,7 @@ Install Apache Directory Studio
     wget http://download.nextag.com/apache//directory/studio/dist/2.0.0.v20130628/ApacheDirectoryStudio-linux-x86_64-2.0.0.v20130628.tar.gz
     tar zxvf ApacheDirectoryStudio-linux-x86_64-2.0.0.v20130628.tar.gz
 
-After this file is decompressed with tar then you can start the executable
+After this file is decompressed with tar then you can start the executable like so.
 
     ./ApacheDirectoryStudio-linux-x86_64-2.0.0.v20130628/ApacheDirectoryStudio &
 
@@ -126,10 +126,7 @@ You now need to create a server. Here is a quick video overview that introduces 
 http://www.youtube.com/watch?v=xJr1hJVo2So
 
 
-Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">. Change "example.com" to "provider-directories.com".  To make things easi
-
-
-
+Create a partition with the suffix o=dev.provider-directories.com,dc=hpd. In Apache directory Studio, open up the server's configuration, click on the partition tab.  You should make yours look like this. <img src="http://oncsiteadmin.s3.amazonaws.com/partitions.png">. Change "example.com" to "provider-directories.com".  To make things easy a configuration is located inside `pdti/docs`. It is explained how to install it into ApcheDS later in this documentation.
 
 
 After creating the partition, start the server, by right clicking the icon in the bottom left corner and click "Run". After it starts, right click again and click "Create a Connection". this will create a connection to the LDAP server you just created. In the top left part of the screen you will see the connection and a globe icon that says "o=dev.provider-directories.com,dc=hpd". Right click on this and select "Import" and then "Import LDIF" files to get to the LDIF Import dialoge.  Be sure to check the "Update existing entries" and "Continue on error" as shown below.
