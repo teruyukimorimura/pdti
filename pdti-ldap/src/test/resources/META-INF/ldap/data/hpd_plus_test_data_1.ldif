@@ -9,12 +9,12 @@ dc: dev.provider-directories.com
 # START: PROVIDER(S)
 #==================================================
 
-dn: ou=Providers,o=dev.provider-directories.com,dc=hpd
+dn: ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: organizationalunit
 objectClass: top
-ou: Providers
+ou: HcProfessional
 
-dn: HcIdentifier=provider1,ou=Providers,o=dev.provider-directories.com,dc=hpd
+dn: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -37,18 +37,18 @@ initials: ASA
 gender: m
 HcIdentifier: provider1
 HcProfession: Doctor
-HcRole: HL-7 code for role
-HcSpecialization: Orthopedic Surgeon
+#HcRole: HL-7 code for role
+HcSpecialisation: Orthopedic Surgeon
 hpdCredential: hpdCredentialId=1,ou=Credentials,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=6,ou=Services,o=dev.provider-directories.com,dc=hpd
-hpdProviderBillingAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
+hpdProviderBillingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderLanguageSupported: en
-hpdProviderLegalAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
-hpdProviderMailingAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
-hpdProviderPracticeAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
+hpdProviderLegalAddress: addr=01251 Chestnut Street,Panama City, DE 50369
+hpdProviderMailingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
+hpdProviderPracticeAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderStatus: Active
 
-dn: HcIdentifier=provider2,ou=Providers,o=dev.provider-directories.com,dc=hpd
+dn: HcIdentifier=provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -58,7 +58,7 @@ objectClass: HCProfessional
 objectClass: HPDProvider
 HcIdentifier: provider2
 HcProfession: Doctor
-HcSpecialization: Ear Nose Throat
+HcSpecialisation: Ear Nose Throat
 cn: John Smith
 description: This is the description for John Smith.
 givenName: John
@@ -69,16 +69,16 @@ mail: john.smith@mail2.com
 mobile: +1 010 154 3228
 pager: +1 779 041 6341
 telephoneNumber: +1 685 622 6202
-hpdProviderLegalAddress: John Smith$01251 Wallnut Street$Panama City, DE 50371
-hpdProviderMailingAddress: John Smith$01251 Wallnut Street$Panama City, DE 50371
-hpdProviderBillingAddress: John Smith$01251 Wallnut Street$Panama City, DE 50371
-hpdProviderPracticeAddress: John Smith$01251 Wallnut Street$Panama City, DE 50371
+hpdProviderLegalAddress: addr=01251 Wallnut Street,Panama City, DE 50371
+hpdProviderMailingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
+hpdProviderBillingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
+hpdProviderPracticeAddress: addr=01251 Wallnut Street,Panama City, DE 50371
 hpdProviderLanguageSupported: en
 uid: john.smith
 hpdHasAService: hpdServiceId=6,ou=Services,o=dev.provider-directories.com,dc=hpd
 gender: m
 
-dn: HcIdentifier=provider3,ou=Providers,o=dev.provider-directories.com,dc=hpd
+dn: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -88,7 +88,7 @@ objectClass: HCProfessional
 objectClass: HPDProvider
 HcIdentifier: provider3
 HcProfession: Doctor
-HcSpecialization: OBGYN
+HcSpecialisation: OBGYN
 cn: Bob Jefferson
 description: This is the description for Bob Jefferson.
 givenName: Bob
@@ -99,10 +99,10 @@ mail: bob.jefferson@mail3.com
 mobile: +1 010 154 3228
 pager: +1 779 041 6341
 telephoneNumber: +1 685 622 6201
-hpdProviderLegalAddress: Bob Jefferson$123 Oak Street$Panama City, DE 50371
-hpdProviderMailingAddress: Bob Jefferson$123 Oak Street$Panama City, DE 50371
-hpdProviderBillingAddress: Bob Jefferson$123 Oak Street$Panama City, DE 50371
-hpdProviderPracticeAddress: Bob Jefferson$123 Oak Street$Panama City, DE 50371
+hpdProviderLegalAddress: addr=123 Oak Street,Panama City, DE 50371
+hpdProviderMailingAddress: addr=123 Oak Street,Panama City, DE 50371
+hpdProviderBillingAddress: addr=123 Oak Street,Panama City, DE 50371
+hpdProviderPracticeAddress: addr=123 Oak Street,Panama City, DE 50371
 uid: bob.jefferson
 gender: m
 
@@ -114,15 +114,15 @@ gender: m
 # START: ORGANIZATION(S)
 #==================================================
 
-dn: ou=Organizations,o=dev.provider-directories.com,dc=hpd
+dn: ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: organizationalunit
 objectClass: top
-ou: Organizations
+ou: HcRegulatedOrganization
 
-dn: hpdOrgId=org1,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+dn: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
-objectClass: HCRegulatedOrganization
+objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
 o: Dr. Thomas Jones' Private Practice
 businessCategory: MRI
@@ -130,72 +130,72 @@ description: Performs magnetic resonance imaging
 facsimileTelephoneNumber: +1 123 456 7899
 telephoneNumber: +1 123 456 7890
 HcIdentifier: org1
-hpdOrgId: org1
-ClinicalInformationContact: HcIdentifier=provider1,ou=Providers,o=dev.provider-directories.com,dc=hpd
+uid: org1
+ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 HcRegisteredName: Dr. Thomas Jones' Private Practice
-HcSpecialization: HL-7 specialization
+HcSpecialisation: HL-7 specialization
 hpdCredential: hpdCredentialId=2,ou=Credentials,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=4,ou=Services,o=dev.provider-directories.com,dc=hpd
-hpdProviderBillingAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
+hpdProviderBillingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderLanguageSupported: en
-hpdProviderLegalAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
-hpdProviderMailingAddress: Dr. Thomas Jones Private Practice$01251 Chestnut Street$Panama City, DE 50369
-hpdProviderPracticeAddress: Thomas Jones$01251 Chestnut Street$Panama City, DE 50369
+hpdProviderLegalAddress: addr=01251 Chestnut Street,Panama City, DE 50369
+hpdProviderMailingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
+hpdProviderPracticeAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderStatus: Active
 
-dn: hpdOrgId=org2,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+dn: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
-objectClass: HCRegulatedOrganization
+objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
 HcIdentifier: org2
 o: Panama City Clinic
-hpdProviderMailingAddress: Panama City Clinic$01251 Wallnut Street$Panama City, DE 50371
-hpdOrgId: org2
+hpdProviderMailingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
+uid: org2
 
-dn: hpdOrgId=org4,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+dn: uid=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
-objectClass: HCRegulatedOrganization
+objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
 HcIdentifier: org4
 o: Northside Hospital Maternity Unit
-hpdProviderMailingAddress: Mail$123 Peachtree Street$Atlanta, GA 30032
-hpdOrgId: org4
+hpdProviderMailingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+uid: org4
 businessCategory: Maternity
 description: Maternity care unit at Northside Hospital
 facsimileTelephoneNumber: +1 123 456 7890
 telephoneNumber: +1 123 456 7890
 HcRegisteredName: Northside Hospital Maternity Care
-ClinicalInformationContact: HcIdentifier=provider1,ou=Providers,o=dev.provider-directories.com,dc=hpd
-HcSpecialization: HL-7 specialization
+ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+HcSpecialisation: HL-7 specialization
 hpdProviderStatus: Active
 hpdProviderLanguageSupported: en sp jpn
-hpdProviderBillingAddress: Billing$123 Peachtree Street$Atlanta, GA 30032
-hpdProviderPracticeAddress: Practice$123 Peachtree Street$Atlanta, GA 30032
-hpdProviderLegalAddress: Legal$123 Peachtree Street$Atlanta, GA 30032
+hpdProviderBillingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+hpdProviderPracticeAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+hpdProviderLegalAddress: addr=123 Peachtree Street,Atlanta, GA 30032
 
-dn: hpdOrgId=org5,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+dn: uid=org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
-objectClass: HCRegulatedOrganization
+objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
 HcIdentifier: org5
 o: Northside Hospital
-hpdProviderMailingAddress: Mail$123 Peachtree Street$Atlanta, GA 30032
-hpdOrgId: org5
+hpdProviderMailingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+uid: org5
 businessCategory: Hospital
 description: Hospital
 facsimileTelephoneNumber: +1 123 456 7890
 telephoneNumber: +1 123 456 7890
 HcRegisteredName: Northside Hospital of Georgia
-ClinicalInformationContact: HcIdentifier=provider1,ou=Providers,o=dev.provider-directories.com,dc=hpd
-HcSpecialization: HL-7 specialization
+ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+HcSpecialisation: HL-7 specialization
 hpdProviderStatus: Active
 hpdProviderLanguageSupported: en sp jpn
-hpdProviderBillingAddress: Billing$123 Peachtree Street$Atlanta, GA 30032
-hpdProviderPracticeAddress: Practice$123 Peachtree Street$Atlanta, GA 30032
-hpdProviderLegalAddress: Legal$123 Peachtree Street$Atlanta, GA 30032
+hpdProviderBillingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+hpdProviderPracticeAddress: addr=123 Peachtree Street,Atlanta, GA 30032
+hpdProviderLegalAddress: addr=123 Peachtree Street,Atlanta, GA 30032
 hpdHasAService: hpdServiceId=4,ou=Services,o=dev.provider-directories.com,dc=hpd
 hpdCredential: hpdCredentialId=2,ou=Credentials,o=dev.provider-directories.com,dc=hpd
 
@@ -215,10 +215,10 @@ ou: Memberships
 dn: hpdMemberId=1,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: hpdOrgId=org1,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 1
 hpdHasAService: hpdServiceId=1,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=2,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=3,ou=Services,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider1,ou=Providers,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 #hpdHasASubOrg: should only have hpdHasAProvider OR hpdHasASubOrg. See membership hpdMemberId=5 for an example that does contain this attribute.
 mail: hpdmemberid1@direct.direct.org
 mobile: +1 123 456 7890
@@ -229,29 +229,29 @@ facsimileTelephoneNumber: +1 123 456 7890
 dn: hpdMemberId=2,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: hpdOrgId=org2,ou=Organizations,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider2,ou=Providers,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: HcIdentifier=provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 2
 
 dn: hpdMemberId=3,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: hpdOrgId=org2,ou=Organizations,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=Providers,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 3
 
 dn: hpdMemberId=4,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: hpdOrgId=org5,ou=Organizations,o=dev.provider-directories.com,dc=hpd
-#hpdHasASubOrg: hpdOrgId=org4,ou=Organizations,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+#hpdHasASubOrg: hpdOrgId=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 4
 
 dn: hpdMemberId=5,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: hpdOrgId=org4,ou=Organizations,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=Providers,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=5,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=2,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=3,ou=Services,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 5
 
@@ -409,8 +409,8 @@ description: Thomas Jones' organizational credential
 credentialIssueDate: 19851106210627.3-0500
 credentialRenewalDate: 19921106210627.3-0500
 credentialStatus: Active
-hpdHasAnOrg: hpdOrgId=org1,ou=Organizations,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=Providers,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 
 #==================================================
 # END: CREDENTIAL(S)

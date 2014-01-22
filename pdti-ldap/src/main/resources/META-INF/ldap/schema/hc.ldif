@@ -185,7 +185,7 @@ m-description: (Issuing authority: Code system: Code) Populate with HL-7 cod
  ing for specialization
 m-equality: caseIgnoreMatch
 m-length: 0
-m-name: HcSpecialization
+m-name: HcSpecialisation
 m-substr: caseIgnoreSubstringsMatch
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
 
@@ -704,9 +704,9 @@ m-may: HcAttributeCertificate
 m-may: HcIdentificationService
 m-may: HcPracticeLocation
 m-may: HcPrincipalPracticeLocation
-m-may: HcRole
+# m-may: HcRole
 m-may: HcSigningCertificate
-m-may: HcSpecialization
+m-may: HcSpecialisation
 m-must: HcIdentifier
 m-must: HcProfession
 m-name: HCProfessional
@@ -740,10 +740,11 @@ m-may: HcRegisteredAddr
 m-may: HcRegisteredName
 m-may: HcServiceLocations
 m-may: HcSigningCertificate
-m-may: HcSpecialization
+m-may: HcSpecialisation
 m-may: HcSuccessorName
 m-must: HcIdentifier
-m-must: hpdOrgId
+m-must: uid
+# m-must: hpdOrgId
 m-name: HCRegulatedOrganization
 m-supobjectclass: organization
 

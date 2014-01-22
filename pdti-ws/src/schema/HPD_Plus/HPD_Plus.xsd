@@ -167,7 +167,7 @@
         </xsd:annotation>
         <xsd:sequence>
             <xsd:element name="requestMetadata" type="HpdPlusRequestMetadata" minOccurs="0"/>
-            <xsd:element name="batchRequest" type="dsml:BatchRequest" minOccurs="0"/>
+            <xsd:element ref="dsml:batchRequest" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="directoryID" type="HpdPlusDirectoryId"/>
         <xsd:attribute name="requestID" type="HpdPlusRequestId" use="required"/>
