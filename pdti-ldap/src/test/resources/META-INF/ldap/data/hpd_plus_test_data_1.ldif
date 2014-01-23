@@ -14,7 +14,7 @@ objectClass: organizationalunit
 objectClass: top
 ou: HcProfessional
 
-dn: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -27,18 +27,18 @@ sn: Jones
 description: This is the description for Thomas Jones.
 telephoneNumber: +1 685 622 6202
 facsimileTelephoneNumber: +1 225 216 5900
-title: Thomas Jones' title
+title: Dr.
 givenName: Thomas
 mail: thomas.jones@mail1.com
 mobile: +1 010 154 3228
 pager: +1 779 041 6341
-uid: thomas.jones
-initials: ASA
+uid: uid=2.16.840.1.113883.3.4295:provider1
+initials: Albert
 gender: m
-HcIdentifier: provider1
-HcProfession: Doctor
+HcIdentifier: 2.16.840.1.113883.4.6:npi:1111111111:Active
+HcProfession: OrthopedicSurgeon
 #HcRole: HL-7 code for role
-HcSpecialisation: Orthopedic Surgeon
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:207X00000X:Orthopedic Surgery
 hpdCredential: hpdCredentialId=1,ou=Credentials,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=6,ou=Services,o=dev.provider-directories.com,dc=hpd
 hpdProviderBillingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
@@ -48,7 +48,7 @@ hpdProviderMailingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderPracticeAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderStatus: Active
 
-dn: HcIdentifier=provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -56,15 +56,16 @@ objectClass: inetorgperson
 objectClass: naturalPerson
 objectClass: HCProfessional
 objectClass: HPDProvider
-HcIdentifier: provider2
-HcProfession: Doctor
-HcSpecialisation: Ear Nose Throat
+HcIdentifier: 2.16.840.1.113883.4.6:npi:1111111112:Active
+HcProfession: Ambulatory Surgeon.
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:103TR0400X:Ambulatory Surgical
 cn: John Smith
 description: This is the description for John Smith.
 givenName: John
 sn: Smith
 facsimileTelephoneNumber: +1 225 216 5901
-initials: JS
+initials: Mills
+title: Dr.
 mail: john.smith@mail2.com
 mobile: +1 010 154 3228
 pager: +1 779 041 6341
@@ -74,11 +75,11 @@ hpdProviderMailingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
 hpdProviderBillingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
 hpdProviderPracticeAddress: addr=01251 Wallnut Street,Panama City, DE 50371
 hpdProviderLanguageSupported: en
-uid: john.smith
+uid: 2.16.840.1.113883.3.4295:provider2
 hpdHasAService: hpdServiceId=6,ou=Services,o=dev.provider-directories.com,dc=hpd
 gender: m
 
-dn: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: person
 objectClass: organizationalperson
@@ -86,15 +87,16 @@ objectClass: inetorgperson
 objectClass: naturalPerson
 objectClass: HCProfessional
 objectClass: HPDProvider
-HcIdentifier: provider3
-HcProfession: Doctor
-HcSpecialisation: OBGYN
+HcIdentifier: 2.16.840.1.113883.4.6:npi:1111111113:Active
+HcProfession: Gynecologist
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:111NX0800X:Obstetrics and Gynecology
 cn: Bob Jefferson
 description: This is the description for Bob Jefferson.
 givenName: Bob
 sn: Jefferson
 facsimileTelephoneNumber: +1 225 216 5900
-initials: JS
+initials: John
+title: Dr.
 mail: bob.jefferson@mail3.com
 mobile: +1 010 154 3228
 pager: +1 779 041 6341
@@ -119,7 +121,7 @@ objectClass: organizationalunit
 objectClass: top
 ou: HcRegulatedOrganization
 
-dn: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
 objectClass: HcRegulatedOrganization
@@ -129,11 +131,11 @@ businessCategory: MRI
 description: Performs magnetic resonance imaging
 facsimileTelephoneNumber: +1 123 456 7899
 telephoneNumber: +1 123 456 7890
-HcIdentifier: org1
-uid: org1
-ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+HcIdentifier: 2.16.840.1.113883.3.4295:LocalId:1111111:Active
+uid: 2.16.840.1.113883.3.4295:org1
+ClinicalInformationContact: uid=2.16.840.1.113883.3.4295:provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 HcRegisteredName: Dr. Thomas Jones' Private Practice
-HcSpecialisation: HL-7 specialization
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:207X00000X:Orthopedic Surgery
 hpdCredential: hpdCredentialId=2,ou=Credentials,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=4,ou=Services,o=dev.provider-directories.com,dc=hpd
 hpdProviderBillingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
@@ -143,54 +145,54 @@ hpdProviderMailingAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderPracticeAddress: addr=01251 Chestnut Street,Panama City, DE 50369
 hpdProviderStatus: Active
 
-dn: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
 objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
-HcIdentifier: org2
+HcIdentifier: 2.16.840.1.113883.3.4295:LocalId:1111112:Active
 o: Panama City Clinic
 hpdProviderMailingAddress: addr=01251 Wallnut Street,Panama City, DE 50371
-uid: org2
+uid: 2.16.840.1.113883.3.4295:org2
 
-dn: uid=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
 objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
-HcIdentifier: org4
+HcIdentifier: 2.16.840.1.113883.3.4295:LocalId:1111114:Active
 o: Northside Hospital Maternity Unit
 hpdProviderMailingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
-uid: org4
+uid: 2.16.840.1.113883.3.4295:org4
 businessCategory: Maternity
 description: Maternity care unit at Northside Hospital
 facsimileTelephoneNumber: +1 123 456 7890
 telephoneNumber: +1 123 456 7890
 HcRegisteredName: Northside Hospital Maternity Care
-ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
-HcSpecialisation: HL-7 specialization
+ClinicalInformationContact: uid=2.16.840.1.113883.3.4295:provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:103TR0400X:Ambulatory Surgical
 hpdProviderStatus: Active
 hpdProviderLanguageSupported: en sp jpn
 hpdProviderBillingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
 hpdProviderPracticeAddress: addr=123 Peachtree Street,Atlanta, GA 30032
 hpdProviderLegalAddress: addr=123 Peachtree Street,Atlanta, GA 30032
 
-dn: uid=org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+dn: uid=2.16.840.1.113883.3.4295:org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: organization
 objectClass: HcRegulatedOrganization
 objectClass: HPDProvider
-HcIdentifier: org5
+HcIdentifier: 2.16.840.1.113883.3.4295:LocalId:1111115:Active
 o: Northside Hospital
 hpdProviderMailingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
-uid: org5
+uid: 2.16.840.1.113883.3.4295:org5
 businessCategory: Hospital
 description: Hospital
 facsimileTelephoneNumber: +1 123 456 7890
 telephoneNumber: +1 123 456 7890
 HcRegisteredName: Northside Hospital of Georgia
-ClinicalInformationContact: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
-HcSpecialisation: HL-7 specialization
+ClinicalInformationContact: uid=2.16.840.1.113883.3.4295:provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+HcSpecialisation: 2.16.840.1.113883.6.101:NUCC:111NX0800X:Obstetrics and Gynecology
 hpdProviderStatus: Active
 hpdProviderLanguageSupported: en sp jpn
 hpdProviderBillingAddress: addr=123 Peachtree Street,Atlanta, GA 30032
@@ -215,10 +217,10 @@ ou: Memberships
 dn: hpdMemberId=1,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 1
 hpdHasAService: hpdServiceId=1,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=2,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=3,ou=Services,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: uid=2.16.840.1.113883.3.4295:provider1,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 #hpdHasASubOrg: should only have hpdHasAProvider OR hpdHasASubOrg. See membership hpdMemberId=5 for an example that does contain this attribute.
 mail: hpdmemberid1@direct.direct.org
 mobile: +1 123 456 7890
@@ -229,29 +231,29 @@ facsimileTelephoneNumber: +1 123 456 7890
 dn: hpdMemberId=2,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: uid=2.16.840.1.113883.3.4295:provider2,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 2
 
 dn: hpdMemberId=3,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: uid=org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org2,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: uid=2.16.840.1.113883.3.4295:provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 3
 
 dn: hpdMemberId=4,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: uid=org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org5,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 #hpdHasASubOrg: hpdOrgId=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 4
 
 dn: hpdMemberId=5,ou=Memberships,o=dev.provider-directories.com,dc=hpd
 objectClass: top
 objectClass: HPDProviderMembership
-hpdHasAnOrg: uid=org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org4,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: uid=2.16.840.1.113883.3.4295:provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 hpdHasAService: hpdServiceId=5,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=2,ou=Services,o=dev.provider-directories.com,dc=hpd^hpdServiceId=3,ou=Services,o=dev.provider-directories.com,dc=hpd
 hpdMemberId: 5
 
@@ -409,8 +411,8 @@ description: Thomas Jones' organizational credential
 credentialIssueDate: 19851106210627.3-0500
 credentialRenewalDate: 19921106210627.3-0500
 credentialStatus: Active
-hpdHasAnOrg: uid=org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
-hpdHasAProvider: HcIdentifier=provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
+hpdHasAnOrg: uid=2.16.840.1.113883.3.4295:org1,ou=HcRegulatedOrganization,o=dev.provider-directories.com,dc=hpd
+hpdHasAProvider: uid=2.16.840.1.113883.3.4295:provider3,ou=HcProfessional,o=dev.provider-directories.com,dc=hpd
 
 #==================================================
 # END: CREDENTIAL(S)
