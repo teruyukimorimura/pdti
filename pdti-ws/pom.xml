@@ -103,12 +103,6 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <args>
-                                <arg>-b</arg>
-                                <arg>file:${project.basedir}/src/schema/DSML/DSMLv2.xsd</arg>
-                                <arg>-b</arg>
-                                <arg>file:${project.basedir}/src/schema/HPD/HPD.xsd</arg>
-                            </args>
                             <bindingFiles>
                                 <bindingFile>global.xjb</bindingFile>
                                 <bindingFile>DSMLv2.xjb</bindingFile>
@@ -128,12 +122,6 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <args>
-                                <arg>-b</arg>
-                                <arg>file:${project.basedir}/src/schema/DSML/DSMLv2.xsd</arg>
-                                <arg>-b</arg>
-                                <arg>file:${project.basedir}/src/schema/HPD_Plus/HPD_Plus.xsd</arg>
-                            </args>
                             <bindingFiles>
                                 <bindingFile>global.xjb</bindingFile>
                                 <bindingFile>DSMLv2.xjb</bindingFile>

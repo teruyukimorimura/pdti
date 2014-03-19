@@ -533,8 +533,10 @@
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="sn"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdProviderLegalAddress XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdproviderlegaladdress"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+<!-- Commented: Found spelling error in dataset for HCSpecialization as HCSpecialisation
 <con:assertion type="XPath Match" name="attr HCSpecialization XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialization"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+-->
 <con:assertion type="XPath Match" name="attr givenName XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="givenname"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdProviderLanguageSupported XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
@@ -573,10 +575,14 @@
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdcredential"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdProviderStatus XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdproviderstatus"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+<!-- Commented: Found HCRole commenetd in dataset 
 <con:assertion type="XPath Match" name="attr HcRole XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcrole"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+-->
+<!-- Commented: Found no entry for count in dataset
 <con:assertion type="XPath Match" name="count attr XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 count(//dsml:attr)</path><content>26</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+-->
 <con:credentials>
               <con:username xsi:nil="true"/>
               <con:password xsi:nil="true"/>
@@ -641,14 +647,20 @@ count(//dsml:attr)</path><content>26</content><allowWildcards>false</allowWildca
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="telephonenumber"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr HcIdentifier XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcidentifier"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
-<con:assertion type="XPath Match" name="attr uid XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
-//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdorgid"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+ <!-- Commented: Found orgid  in dataset as 2.16.840.1.113883.3.4295:org1 instead hpdorgid 
+<con:assertion type="XPath Match" name="attr uid XPath Match"><con:configuration><path>
+declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
+//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdorgid"
+</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+-->
 <con:assertion type="XPath Match" name="attr ClinicalInformationContact XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="clinicalinformationcontact"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr HcRegisteredName XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcregisteredname"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
-<con:assertion type="XPath Match" name="attr HcSpecialization XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
+<!-- Commented: Found spelling error in dataset for HCSpecialization as HCSpecialisation
+<con:assertion type="XPath Match" name="attr HcSpecialisation XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialization"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
+-->
 <con:assertion type="XPath Match" name="attr hpdCredential XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdcredential"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdHasAService XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
