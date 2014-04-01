@@ -533,10 +533,8 @@
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="sn"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdProviderLegalAddress XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdproviderlegaladdress"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
-<!-- Commented: Found spelling error in dataset for HCSpecialization as HCSpecialisation
-<con:assertion type="XPath Match" name="attr HCSpecialization XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
-//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialization"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
--->
+<con:assertion type="XPath Match" name="attr HCSpecialisation XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
+//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialisation"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr givenName XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="givenname"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdProviderLanguageSupported XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
@@ -657,10 +655,8 @@ declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="clinicalinformationcontact"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr HcRegisteredName XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcregisteredname"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
-<!-- Commented: Found spelling error in dataset for HCSpecialization as HCSpecialisation
 <con:assertion type="XPath Match" name="attr HcSpecialisation XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
-//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialization"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
--->
+//dsml:searchResultEntry/dsml:attr/lower-case(@name)="hcspecialisation"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdCredential XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
 //dsml:searchResultEntry/dsml:attr/lower-case(@name)="hpdcredential"</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion>
 <con:assertion type="XPath Match" name="attr hpdHasAService XPath Match"><con:configuration><path>declare namespace dsml='urn:oasis:names:tc:DSML:2:0:core';
@@ -1054,7 +1050,7 @@ count(//dsml:attr)</path><content>1</content><allowWildcards>false</allowWildcar
 	               <dsml:attribute name="hpdProviderBillingAddress"/>
 	               <dsml:attribute name="hpdProviderPracticeAddress"/>
 	               <dsml:attribute name="hpdProviderLanguageSupported"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="telephoneNumber"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
 	               <dsml:attribute name="hpdHasAService"/>
@@ -1187,7 +1183,7 @@ count(//dsml:attr)</path><content>1</content><allowWildcards>false</allowWildcar
 	               <dsml:attribute name="mobile"/>
 	               <dsml:attribute name="pager"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="suffix"/>
 	               <dsml:attribute name="hpdHasAService"/>
 	               <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -1321,7 +1317,7 @@ count(//dsml:attr)</path><content>1</content><allowWildcards>false</allowWildcar
                   <dsml:attribute name="mobile"/>
                   <dsml:attribute name="pager"/>
                   <dsml:attribute name="facsimileTelephoneNumber"/>
-                  <dsml:attribute name="hcSpecialization"/>
+                  <dsml:attribute name="hcSpecialisation"/>
                   <dsml:attribute name="suffix"/>
                   <dsml:attribute name="hpdHasAService"/>
                   <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -2030,7 +2026,7 @@ Request a specific individual by specifying the individual unique reference ID.<
 	               <dsml:attribute name="mobile"/>
 	               <dsml:attribute name="pager"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="suffix"/>
 	               <dsml:attribute name="hpdHasAService"/>
 	               <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -2095,7 +2091,7 @@ organization attributes.</con:description><con:settings/>
 	               <dsml:attribute name="hpdProviderBillingAddress"/>
 	               <dsml:attribute name="hpdProviderPracticeAddress"/>
 	               <dsml:attribute name="hpdProviderLanguageSupported"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="telephoneNumber"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
 	               <dsml:attribute name="hpdHasAService"/>
@@ -2276,7 +2272,7 @@ organization unique reference ID.</con:description><con:settings/><con:testStep 
 	               <dsml:attribute name="hpdProviderBillingAddress"/>
 	               <dsml:attribute name="hpdProviderPracticeAddress"/>
 	               <dsml:attribute name="hpdProviderLanguageSupported"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="telephoneNumber"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
 	               <dsml:attribute name="hpdHasAService"/>
@@ -2472,7 +2468,7 @@ relationships are returned.</con:description><con:settings/>
 	               <dsml:attribute name="mobile"/>
 	               <dsml:attribute name="pager"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="suffix"/>
 	               <dsml:attribute name="hpdHasAService"/>
 	               <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -2720,7 +2716,7 @@ relationships are returned.</con:description><con:settings/>
 	               <dsml:attribute name="hpdProviderBillingAddress"/>
 	               <dsml:attribute name="hpdProviderPracticeAddress"/>
 	               <dsml:attribute name="hpdProviderLanguageSupported"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="telephoneNumber"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
 	               <dsml:attribute name="hpdHasAService"/>
@@ -2970,7 +2966,7 @@ relationships are returned.</con:description><con:settings/>
                   <dsml:attribute name="mobile"/>
                   <dsml:attribute name="pager"/>
                   <dsml:attribute name="facsimileTelephoneNumber"/>
-                  <dsml:attribute name="hcSpecialization"/>
+                  <dsml:attribute name="hcSpecialisation"/>
                   <dsml:attribute name="suffix"/>
                   <dsml:attribute name="hpdHasAService"/>
                   <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -3053,7 +3049,7 @@ other organizations are returned. </con:description><con:settings/>
 	               <dsml:attribute name="mobile"/>
 	               <dsml:attribute name="pager"/>
 	               <dsml:attribute name="facsimileTelephoneNumber"/>
-	               <dsml:attribute name="hcSpecialization"/>
+	               <dsml:attribute name="hcSpecialisation"/>
 	               <dsml:attribute name="suffix"/>
 	               <dsml:attribute name="hpdHasAService"/>
 	               <dsml:attribute name="hpdProviderLegalAddress"/>
@@ -3118,7 +3114,7 @@ other organizations are returned. </con:description><con:settings/>
                   <dsml:attribute name="hpdProviderBillingAddress"/>
                   <dsml:attribute name="hpdProviderPracticeAddress"/>
                   <dsml:attribute name="hpdProviderLanguageSupported"/>
-                  <dsml:attribute name="hcSpecialization"/>
+                  <dsml:attribute name="hcSpecialisation"/>
                      <dsml:attribute name="telephoneNumber"/>
                   <dsml:attribute name="facsimileTelephoneNumber"/>
                   <dsml:attribute name="hpdHasAService"/>
