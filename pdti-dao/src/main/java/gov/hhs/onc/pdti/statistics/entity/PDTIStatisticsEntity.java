@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gov.hhs.onc.pdti.statistics.entity;
 
 import java.io.Serializable;
@@ -16,16 +11,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-/**
- *
- * @author Sai Valluripalli
- */
 @Entity
 @Table(name = "pdtiauditlog")
 public class PDTIStatisticsEntity implements Serializable {
-
-    @Column(name = "sourcedomain", length = 50, nullable = true)
-    private String sourceDomain;
 
     @Column(name = "basedn", length = 50, nullable = true)
     private String baseDn;
@@ -41,21 +29,19 @@ public class PDTIStatisticsEntity implements Serializable {
     private Date creationDate;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      *
      * @param id
-     * @param sourceDomain
      * @param baseDn
      * @param pdRequestType
      * @param status
      * @param creationDate
      */
-    public PDTIStatisticsEntity(Long id, String sourceDomain, String baseDn, String pdRequestType, String status, Date creationDate) {
+    public PDTIStatisticsEntity(Long id, String baseDn, String pdRequestType, String status, Date creationDate) {
         this.id = id;
-        this.sourceDomain = sourceDomain;
         this.baseDn = baseDn;
         this.pdRequestType = pdRequestType;
         this.status = status;
@@ -67,22 +53,6 @@ public class PDTIStatisticsEntity implements Serializable {
      */
     public PDTIStatisticsEntity() {
 
-    }
-
-    /**
-     *
-     * @return String
-     */
-    public String getSourceDomain() {
-        return sourceDomain;
-    }
-
-    /**
-     *
-     * @param sourceDomain
-     */
-    public void setSourceDomain(String sourceDomain) {
-        this.sourceDomain = sourceDomain;
     }
 
     /**

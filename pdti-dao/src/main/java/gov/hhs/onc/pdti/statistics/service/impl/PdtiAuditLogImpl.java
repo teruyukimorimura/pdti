@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gov.hhs.onc.pdti.statistics.service.impl;
 
 import gov.hhs.onc.pdti.statistics.dao.PDTIStatisticsDAO;
@@ -12,10 +7,6 @@ import java.util.List;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-/**
- *
- * @author Wilmertech
- */
 public class PdtiAuditLogImpl implements PdtiAuditLog {
 
     private static PDTIStatisticsDAO pdtiStatisticsDAO;
