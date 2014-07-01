@@ -41,7 +41,7 @@ public class PDTIStatisticsEntity implements Serializable {
     private Date creationDate;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
     /**

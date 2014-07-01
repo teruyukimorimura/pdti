@@ -13,11 +13,15 @@ import gov.hhs.onc.pdti.interceptor.DirectoryInterceptorNoOpException;
 import gov.hhs.onc.pdti.interceptor.DirectoryRequestInterceptor;
 import gov.hhs.onc.pdti.interceptor.DirectoryResponseInterceptor;
 import gov.hhs.onc.pdti.service.DirectoryService;
+import gov.hhs.onc.pdti.statistics.entity.PDTIStatisticsEntity;
+import gov.hhs.onc.pdti.statistics.service.PdtiAuditLog;
+import gov.hhs.onc.pdti.statistics.service.impl.PdtiAuditLogImpl;
 import gov.hhs.onc.pdti.util.DirectoryUtils;
 import gov.hhs.onc.pdti.ws.api.BatchRequest;
 import gov.hhs.onc.pdti.ws.api.BatchResponse;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
+import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import org.apache.log4j.Logger;
@@ -41,7 +45,10 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
         BatchResponse batchResp = this.objectFactory.createBatchResponse();
         DirectoryInterceptorNoOpException noOpException = null;
-
+        PDTIStatisticsEntity entity = new PDTIStatisticsEntity();
+        entity.setBaseDn(dirId);
+        entity.setCreationDate(new Date());
+        entity.setPdRequestType("BatchRequest");        
         try {
             this.interceptRequests(dirDesc, dirId, reqId, batchReq, batchResp);
         } catch (DirectoryInterceptorNoOpException e) {
@@ -104,7 +111,9 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         } catch (XmlMappingException e) {
             this.addError(dirId, reqId, batchResp, e);
         }
-
+        entity.setStatus("Success");
+        PdtiAuditLog pdtiAuditLogService = PdtiAuditLogImpl.getInstance();
+        pdtiAuditLogService.save(entity);
         return batchResp;
     }
 
