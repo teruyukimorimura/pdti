@@ -1,6 +1,5 @@
 package gov.hhs.onc.pdti.service.impl;
 
-import com.sun.xml.messaging.saaj.packaging.mime.MessagingException;
 import com.sun.xml.messaging.saaj.packaging.mime.internet.MimeUtility;
 import gov.hhs.onc.pdti.DirectoryStandard;
 import gov.hhs.onc.pdti.DirectoryStandardId;
@@ -21,19 +20,15 @@ import gov.hhs.onc.pdti.ws.api.Control;
 import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
-import ihe.FederatedRequestData;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.XmlMappingException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.SerializationUtils;
 
 @DirectoryStandard(DirectoryStandardId.IHE)
 @Scope("singleton")
@@ -51,8 +46,8 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
         BatchResponse batchResp = this.objectFactory.createBatchResponse();
         DirectoryInterceptorNoOpException noOpException = null;
-        String federatedRequestId = getFederatedRequestId(batchReq);
-        if (null != federatedRequestId && federatedRequestId.length() > 0) {
+        boolean isFederatedRequest = getFederatedRequestId(batchReq);
+        if (isFederatedRequest) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Federation Enabled...");
             } else if (LOGGER.isDebugEnabled()) {
@@ -101,10 +96,12 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                     }
                 }
 
-                try {
-                    combineBatchResponses(batchResp, this.fedService.federate(batchReq));
-                } catch (Throwable th) {
-                    this.addError(dirId, reqId, batchResp, th);
+                if (isFederatedRequest) {
+                    try {
+                        combineBatchResponses(batchResp, this.fedService.federate(batchReq));
+                    } catch (Throwable th) {
+                        this.addError(dirId, reqId, batchResp, th);
+                    }
                 }
             }
         } catch (XmlMappingException e) {
@@ -135,29 +132,28 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
     /**
      *
      * @param batchReq
-     * @return String
+     * @return boolean
      */
-    private String getFederatedRequestId(BatchRequest batchReq) {
-        String federatedRequestId = "";
+    private boolean getFederatedRequestId(BatchRequest batchReq) {
+        boolean isFederatedRequest = false;
         if (null != batchReq && null != batchReq.getBatchRequests() && batchReq.getBatchRequests().size() > 0) {
             DsmlMessage dsml = batchReq.getBatchRequests().get(0);
             if (null != dsml && null != dsml.getControl() && dsml.getControl().size() > 0) {
                 Control ctrl = dsml.getControl().get(0);
-                byte[] data = (byte[]) dsml.getControl().get(0).getControlValue();
-                FederatedRequestData fredReqData = (FederatedRequestData) decodeBase64(data);
-                if (null != fredReqData && null != fredReqData.getFederatedRequestId()) {
-                    federatedRequestId = fredReqData.getFederatedRequestId();
+                if (null != dsml.getControl().get(0).getControlValue()) {
+                    isFederatedRequest = true;
                 }
+
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace(ctrl.getType());
-                    LOGGER.trace(federatedRequestId);
+                    LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
                 } else if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(ctrl.getType());
-                    LOGGER.debug(federatedRequestId);
+                    LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
                 }
             }
         }
-        return federatedRequestId;
+        return isFederatedRequest;
     }
 
     /**

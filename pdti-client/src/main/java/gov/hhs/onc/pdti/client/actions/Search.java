@@ -34,14 +34,12 @@ import org.apache.log4j.Logger;
 import com.opensymphony.xwork2.validator.annotations.RequiredFieldValidator;
 import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.opensymphony.xwork2.validator.annotations.ValidatorType;
-import com.sun.xml.messaging.saaj.packaging.mime.MessagingException;
 import com.sun.xml.messaging.saaj.packaging.mime.internet.MimeUtility;
 import gov.hhs.onc.pdti.ws.api.Control;
 import ihe.FederatedRequestData;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts2.interceptor.ServletRequestAware;
@@ -246,7 +244,7 @@ public class Search extends BaseAction implements ServletRequestAware {
         ctrl.setType("1.2.3.4.5");
         ctrl.setCriticality(false);
         FederatedRequestData reqData = new FederatedRequestData();
-        reqData.setFederatedRequestId("12345");            
+        reqData.setFederatedRequestId("12345");
         ctrl.setControlValue(this.convertToBytes(reqData));
         searchRequest.getControl().clear();
         searchRequest.getControl().add(ctrl);
@@ -390,6 +388,11 @@ public class Search extends BaseAction implements ServletRequestAware {
         return defaultUrl;
     }
 
+    /**
+     * 
+     * @param reqData
+     * @return byte
+     */
     private byte[] convertToBytes(FederatedRequestData reqData) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream mout;
