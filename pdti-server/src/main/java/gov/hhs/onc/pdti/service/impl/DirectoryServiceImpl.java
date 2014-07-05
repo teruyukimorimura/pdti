@@ -20,14 +20,18 @@ import gov.hhs.onc.pdti.ws.api.Control;
 import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
+import gov.hhs.onc.pdti.ws.api.SearchResponse;
+import gov.hhs.onc.pdti.ws.api.SearchResultEntry;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
+import javax.xml.bind.JAXBElement;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -104,7 +108,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 String iheoid = "";
                 InputStream input = null;
                 try {
-                    //input = new FileInputStream();
                     input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
                     prop.load(input);
                     iheoid = prop.getProperty("ihefederationoid");
@@ -124,7 +127,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                         && isFederatedRequest.length() > 0
                         && isFederatedRequest.equalsIgnoreCase(iheoid)) {
                     try {
-                        combineBatchResponses(batchResp, this.fedService.federate(batchReq));
+                        combineFederatedBatchResponses(batchResp, this.fedService.federate(batchReq), batchReq);
                     } catch (Throwable th) {
                         this.addError(dirId, reqId, batchResp, th);
                     }
@@ -153,6 +156,33 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         }
 
         return batchResp;
+    }
+
+    /**
+     *
+     * @param batchResp
+     * @param batchRespCombine
+     */
+    private static void combineFederatedBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine, BatchRequest batchRequest) {
+        for (BatchResponse batchRespCombineItem : batchRespCombine) {
+            batchResp.getBatchResponses().addAll(batchRespCombineItem.getBatchResponses());
+        }
+
+        int count = batchResp.getBatchResponses().size();
+        int responseCount = 0;
+        Control ctrl = batchRequest.getBatchRequests().get(0).getControl().get(0);
+        while (responseCount < count) {
+            if (batchResp.getBatchResponses().get(responseCount).getValue() instanceof SearchResponse) {
+                ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultDone().getControl().add(ctrl);
+                int entryCount = 0;
+                int totalEntryCount = ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().size();
+                while (entryCount < totalEntryCount) {
+                    ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().get(entryCount).getControl().add(ctrl);
+                    entryCount++;
+                }
+            }
+            responseCount++;
+        }
     }
 
     /**
