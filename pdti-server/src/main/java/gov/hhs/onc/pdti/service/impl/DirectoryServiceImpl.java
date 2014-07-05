@@ -21,8 +21,12 @@ import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
+import java.util.Properties;
 import java.util.SortedSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +50,8 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
         BatchResponse batchResp = this.objectFactory.createBatchResponse();
         DirectoryInterceptorNoOpException noOpException = null;
-        boolean isFederatedRequest = getFederatedRequestId(batchReq);
-        if (isFederatedRequest) {
+        String isFederatedRequest = getFederatedRequestId(batchReq);
+        if (null != isFederatedRequest && isFederatedRequest.length() > 0) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Federation Enabled...");
             } else if (LOGGER.isDebugEnabled()) {
@@ -96,7 +100,29 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                     }
                 }
 
-                if (isFederatedRequest) {
+                Properties prop = new Properties();
+                String iheoid = "";
+                InputStream input = null;
+                try {
+                    //input = new FileInputStream();
+                    input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
+                    prop.load(input);
+                    iheoid = prop.getProperty("ihefederationoid");
+                } catch (Throwable th) {
+                    this.addError(dirId, reqId, batchResp, th);
+                } finally {
+                    if (null != input) {
+                        try {
+                            input.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                if (null != isFederatedRequest
+                        && isFederatedRequest.length() > 0
+                        && isFederatedRequest.equalsIgnoreCase(iheoid)) {
                     try {
                         combineBatchResponses(batchResp, this.fedService.federate(batchReq));
                     } catch (Throwable th) {
@@ -134,14 +160,16 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param batchReq
      * @return boolean
      */
-    private boolean getFederatedRequestId(BatchRequest batchReq) {
+    private String getFederatedRequestId(BatchRequest batchReq) {
         boolean isFederatedRequest = false;
+        String strOid = null;
         if (null != batchReq && null != batchReq.getBatchRequests() && batchReq.getBatchRequests().size() > 0) {
             DsmlMessage dsml = batchReq.getBatchRequests().get(0);
             if (null != dsml && null != dsml.getControl() && dsml.getControl().size() > 0) {
                 Control ctrl = dsml.getControl().get(0);
                 if (null != dsml.getControl().get(0).getControlValue()) {
                     isFederatedRequest = true;
+                    strOid = ctrl.getType();
                 }
 
                 if (LOGGER.isTraceEnabled()) {
@@ -153,7 +181,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 }
             }
         }
-        return isFederatedRequest;
+        return strOid;
     }
 
     /**
