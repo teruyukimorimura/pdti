@@ -21,17 +21,19 @@ import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import gov.hhs.onc.pdti.ws.api.SearchResponse;
-import gov.hhs.onc.pdti.ws.api.SearchResultEntry;
+import ihe.FederatedRequestData;
+import ihe.FederatedResponseStatus;
+import ihe.FederatedSearchResponseData;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.Iterator;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
-import javax.xml.bind.JAXBElement;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -44,7 +46,7 @@ import org.springframework.stereotype.Service;
 public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest, BatchResponse> implements DirectoryService<BatchRequest, BatchResponse> {
 
     private final static Logger LOGGER = Logger.getLogger(DirectoryServiceImpl.class);
-
+    private static String iheoid = "";
     @Autowired
     @DirectoryStandard(DirectoryStandardId.IHE)
     private ObjectFactory objectFactory;
@@ -105,7 +107,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 }
 
                 Properties prop = new Properties();
-                String iheoid = "";
                 InputStream input = null;
                 try {
                     input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
@@ -170,7 +171,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
 
         int count = batchResp.getBatchResponses().size();
         int responseCount = 0;
-        Control ctrl = batchRequest.getBatchRequests().get(0).getControl().get(0);
+        Control ctrl = buildFederatedRespondeCtrl(batchRequest);
         while (responseCount < count) {
             if (batchResp.getBatchResponses().get(responseCount).getValue() instanceof SearchResponse) {
                 ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultDone().getControl().add(ctrl);
@@ -219,7 +220,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param b
      * @return Object
      */
-    private Object decodeBase64(byte[] b) {
+    private static Object decodeBase64(byte[] b) {
         Object obj = null;
         ObjectInputStream in;
         if (null != b && b.length > 0) {
@@ -244,6 +245,44 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         for (BatchResponse batchRespCombineItem : batchRespCombine) {
             batchResp.getBatchResponses().addAll(batchRespCombineItem.getBatchResponses());
         }
+    }
+
+    /**
+     *
+     * @param batchRequest
+     * @return Control
+     */
+    private static Control buildFederatedRespondeCtrl(BatchRequest batchRequest) {
+        Control ctrl = new Control();
+        ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
+        ctrl.setCriticality(false);
+        FederatedSearchResponseData oResponse = new FederatedSearchResponseData();
+        FederatedResponseStatus status = new FederatedResponseStatus();
+        status.setFederatedRequestId(iheoid);
+        oResponse.setFederatedResponseStatus(status);
+        ctrl.setControlValue(convertToBytes(oResponse));
+        return ctrl;
+    }
+
+    /**
+     *
+     * @param resData
+     * @return byte
+     */
+    private static byte[] convertToBytes(FederatedSearchResponseData resData) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        OutputStream mout;
+        ObjectOutputStream out;
+        try {
+            mout = MimeUtility.encode(bos, "base64");
+            out = new ObjectOutputStream(mout);
+            out.writeObject(resData);
+            out.flush();
+        } catch (Exception ex) {
+            LOGGER.error(ex);
+        }
+        byte[] bytes = bos.toByteArray();
+        return bytes;
     }
 
     @Autowired
