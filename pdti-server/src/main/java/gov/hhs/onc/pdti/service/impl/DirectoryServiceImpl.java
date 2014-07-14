@@ -13,6 +13,9 @@ import gov.hhs.onc.pdti.interceptor.DirectoryInterceptorNoOpException;
 import gov.hhs.onc.pdti.interceptor.DirectoryRequestInterceptor;
 import gov.hhs.onc.pdti.interceptor.DirectoryResponseInterceptor;
 import gov.hhs.onc.pdti.service.DirectoryService;
+import gov.hhs.onc.pdti.statistics.entity.PDTIStatisticsEntity;
+import gov.hhs.onc.pdti.statistics.service.PdtiAuditLog;
+import gov.hhs.onc.pdti.statistics.service.impl.PdtiAuditLogImpl;
 import gov.hhs.onc.pdti.util.DirectoryUtils;
 import gov.hhs.onc.pdti.ws.api.BatchRequest;
 import gov.hhs.onc.pdti.ws.api.BatchResponse;
@@ -21,7 +24,6 @@ import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import gov.hhs.onc.pdti.ws.api.SearchResponse;
-import ihe.FederatedRequestData;
 import ihe.FederatedResponseStatus;
 import ihe.FederatedSearchResponseData;
 import java.io.ByteArrayInputStream;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
@@ -56,6 +59,11 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
         BatchResponse batchResp = this.objectFactory.createBatchResponse();
         DirectoryInterceptorNoOpException noOpException = null;
+        boolean isError = false;
+        PDTIStatisticsEntity entity = new PDTIStatisticsEntity();
+        entity.setBaseDn(dirId);
+        entity.setCreationDate(new Date());
+        entity.setPdRequestType("BatchRequest");
         String isFederatedRequest = getFederatedRequestId(batchReq);
         if (null != isFederatedRequest && isFederatedRequest.length() > 0) {
             if (LOGGER.isTraceEnabled()) {
@@ -76,6 +84,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         } catch (DirectoryInterceptorNoOpException e) {
             noOpException = e;
         } catch (DirectoryInterceptorException e) {
+            isError = true;
             this.addError(dirId, reqId, batchResp, e);
         }
 
@@ -113,6 +122,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                     prop.load(input);
                     iheoid = prop.getProperty("ihefederationoid");
                 } catch (Throwable th) {
+                    isError = true;
                     this.addError(dirId, reqId, batchResp, th);
                 } finally {
                     if (null != input) {
@@ -130,6 +140,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                     try {
                         combineFederatedBatchResponses(batchResp, this.fedService.federate(batchReq), batchReq);
                     } catch (Throwable th) {
+                        isError = true;
                         this.addError(dirId, reqId, batchResp, th);
                     }
                 }
@@ -141,6 +152,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         try {
             this.interceptResponses(dirDesc, dirId, reqId, batchReq, batchResp);
         } catch (DirectoryInterceptorException e) {
+            isError = true;
             this.addError(dirId, reqId, batchResp, e);
         }
 
@@ -153,9 +165,16 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 LOGGER.debug("Processed DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ") into DSML batch response.");
             }
         } catch (XmlMappingException e) {
+            isError = true;
             this.addError(dirId, reqId, batchResp, e);
         }
-
+        if (isError) {
+            entity.setStatus("Error");
+        } else {
+            entity.setStatus("Success");
+        }
+        PdtiAuditLog pdtiAuditLogService = PdtiAuditLogImpl.getInstance();
+        pdtiAuditLogService.save(entity);
         return batchResp;
     }
 
