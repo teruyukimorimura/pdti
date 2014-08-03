@@ -36,12 +36,14 @@ import com.opensymphony.xwork2.validator.annotations.Validations;
 import com.opensymphony.xwork2.validator.annotations.ValidatorType;
 import com.sun.xml.messaging.saaj.packaging.mime.internet.MimeUtility;
 import gov.hhs.onc.pdti.ws.api.Control;
-import ihe.FederatedRequestData;
+import gov.hhs.onc.pdti.client.federation.xml.FederatedRequestData;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import org.apache.struts2.interceptor.ServletRequestAware;
 
 public class Search extends BaseAction implements ServletRequestAware {
@@ -73,7 +75,7 @@ public class Search extends BaseAction implements ServletRequestAware {
     private String url;
     private String providerDirectoryType;
     private String requestId;
-    private String typeToSearch;
+    private String textDN;
     private String searchAttribute;
     private String searchString;
     private String[] attributesToRetrieve;
@@ -96,10 +98,10 @@ public class Search extends BaseAction implements ServletRequestAware {
     public String execute() {
         LOGGER.debug("execute() called...");
         LOGGER.debug("url =" + url + "=");
-        LOGGER.debug("showDetails =" + showDetails + "=");
-        LOGGER.debug("requestId =" + requestId + "=");
+//        LOGGER.debug("showDetails =" + showDetails + "=");
+//        LOGGER.debug("requestId =" + requestId + "=");
         URL wsdlUrl = null;
-
+        requestId = UUID.randomUUID().toString();
         try {
             if (!StringUtils.isEmpty(url)) {
                 wsdlUrl = new URL(url);
@@ -248,7 +250,8 @@ public class Search extends BaseAction implements ServletRequestAware {
         ctrl.setControlValue(this.convertToBytes(reqData));
         searchRequest.getControl().clear();
         searchRequest.getControl().add(ctrl);
-        searchRequest.setDn(OU + typeToSearch + COMMA + getText(DN));
+        //searchRequest.setDn(OU + typeToSearch + COMMA + getText(DN));
+        searchRequest.setDn(textDN);
         searchRequest.setScope(SINGLE_LEVEL);
         searchRequest.setDerefAliases(DEREF_FINDING_BASE_OBJ);
         Filter filter = dsmlBasedObjectFactory.createFilter();
@@ -256,8 +259,8 @@ public class Search extends BaseAction implements ServletRequestAware {
         attributeValueAssertion.setName(searchAttribute);
         attributeValueAssertion.setValue(searchString);
         filter.setEqualityMatch(attributeValueAssertion);
-        searchRequest.setFilter(filter);
-        batchRequest.getBatchRequests().add(searchRequest);
+        searchRequest.setFilter(filter);        
+        batchRequest.getBatchRequests().add(searchRequest);        
         return batchRequest;
     }
 
@@ -295,21 +298,13 @@ public class Search extends BaseAction implements ServletRequestAware {
         }
         searchResults = ArrayUtils.addAll(searchResults, newSearchResults);
     }
-
-    public void setTypeToSearch(String typeToSearch) {
-        this.typeToSearch = typeToSearch;
-    }
-
+    
     public void setSearchAttribute(String searchAttribute) {
         this.searchAttribute = searchAttribute;
     }
 
     public void setSearchString(String searchString) {
         this.searchString = searchString;
-    }
-
-    public String getTypeToSearch() {
-        return typeToSearch;
     }
 
     public String getSearchAttribute() {
@@ -388,6 +383,15 @@ public class Search extends BaseAction implements ServletRequestAware {
         return defaultUrl;
     }
 
+    public String getTextDN() {
+        return textDN;
+    }
+
+    public void setTextDN(String textDN) {
+        this.textDN = textDN;
+    }
+
+    
     /**
      * 
      * @param reqData
