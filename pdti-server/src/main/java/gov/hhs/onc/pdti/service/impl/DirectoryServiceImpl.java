@@ -26,11 +26,10 @@ import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import gov.hhs.onc.pdti.ws.api.SearchResponse;
 import gov.hhs.onc.pdti.server.xml.FederatedResponseStatus;
 import gov.hhs.onc.pdti.server.xml.FederatedSearchResponseData;
-import java.io.ByteArrayInputStream;
+import gov.hhs.onc.pdti.server.xml.SearchResultEntryMetadata;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Date;
@@ -53,43 +52,49 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
     @Autowired
     @DirectoryStandard(DirectoryStandardId.IHE)
     private ObjectFactory objectFactory;
+    private static String dirStaticId = "";
 
     @Override
     public BatchResponse processRequest(BatchRequest batchReq) {
-        String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
-        BatchResponse batchResp = this.objectFactory.createBatchResponse();
         DirectoryInterceptorNoOpException noOpException = null;
         boolean isError = false;
+        InputStream input = null;
+        Properties prop = new Properties();
+        String dirId = this.dirDesc.getDirectoryId();
+        dirStaticId = dirId;
+        String reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
+        BatchResponse batchResp = this.objectFactory.createBatchResponse();
         PDTIStatisticsEntity entity = new PDTIStatisticsEntity();
         entity.setBaseDn(dirId);
         entity.setCreationDate(new Date());
         entity.setPdRequestType("BatchRequest");
         String isFederatedRequest = getFederatedRequestId(batchReq);
-        if (null != isFederatedRequest && isFederatedRequest.length() > 0) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Federation Enabled...");
-            } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Federation Enabled...");
-            }
-        } else {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Federation Not Enabled...");
-            } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Federation Not Enabled...");
-            }
-        }
-
+        String batchReqStr = null;
         try {
-            this.interceptRequests(dirDesc, dirId, reqId, batchReq, batchResp);
-        } catch (DirectoryInterceptorNoOpException e) {
-            noOpException = e;
-        } catch (DirectoryInterceptorException e) {
-            isError = true;
-            this.addError(dirId, reqId, batchResp, e);
-        }
-
-        try {
-            String batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
+            try {
+                this.interceptRequests(dirDesc, dirId, reqId, batchReq, batchResp);
+                batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
+                input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
+                prop.load(input);
+                iheoid = prop.getProperty("ihefederationoid");
+            } catch (DirectoryInterceptorNoOpException e) {
+                noOpException = e;
+            } catch (DirectoryInterceptorException e) {
+                isError = true;
+                this.addError(dirId, reqId, batchResp, e);
+            } catch (Throwable th) {
+                isError = true;
+                this.addError(dirId, reqId, batchResp, th);
+            } finally {
+                if (null != input) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        isError = true;
+                        this.addError(dirId, reqId, batchResp, e);
+                    }
+                }
+            }
 
             if (noOpException != null) {
                 if (LOGGER.isTraceEnabled()) {
@@ -104,51 +109,43 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 } else if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Processing DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ").");
                 }
-
-                if (this.dataServices != null) {
-                    for (DirectoryDataService<?> dataService : this.dataServices) {
-                        try {
-                            combineBatchResponses(batchResp, dataService.processData(batchReq));
-                        } catch (Throwable th) {
-                            this.addError(dirId, reqId, batchResp, th);
-                        }
-                    }
-                }
-
-                Properties prop = new Properties();
-                InputStream input = null;
-                try {
-                    input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
-                    prop.load(input);
-                    iheoid = prop.getProperty("ihefederationoid");
-                } catch (Throwable th) {
-                    isError = true;
-                    this.addError(dirId, reqId, batchResp, th);
-                } finally {
-                    if (null != input) {
-                        try {
-                            input.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
+                //If Federation is enabled, then a local ldap call and Federation both should happen.. 
+                //In the else part only local Directory will be searched.
                 if (null != isFederatedRequest
                         && isFederatedRequest.length() > 0
                         && isFederatedRequest.equalsIgnoreCase(iheoid)) {
+                    if (this.dataServices != null) {
+                        for (DirectoryDataService<?> dataService : this.dataServices) {
+                            try {
+                                combineBatchResponses(batchResp, dataService.processData(batchReq));
+                            } catch (Throwable th) {
+                                this.addError(dirId, reqId, batchResp, th);
+                            }
+                        }
+                    }
                     try {
                         combineFederatedBatchResponses(batchResp, this.fedService.federate(batchReq), batchReq);
                     } catch (Throwable th) {
                         isError = true;
                         this.addError(dirId, reqId, batchResp, th);
                     }
+                } else {
+                    // Call Local LDAP Directory...
+                    LOGGER.info("Inside Local Directory Call...");
+                    if (this.dataServices != null) {
+                        for (DirectoryDataService<?> dataService : this.dataServices) {
+                            try {
+                                combineBatchResponses(batchResp, dataService.processData(batchReq));
+                            } catch (Throwable th) {
+                                this.addError(dirId, reqId, batchResp, th);
+                            }
+                        }
+                    }
                 }
             }
         } catch (XmlMappingException e) {
             this.addError(dirId, reqId, batchResp, e);
         }
-
         try {
             this.interceptResponses(dirDesc, dirId, reqId, batchReq, batchResp);
         } catch (DirectoryInterceptorException e) {
@@ -190,14 +187,15 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
 
         int count = batchResp.getBatchResponses().size();
         int responseCount = 0;
-        Control ctrl = buildFederatedRespondeCtrl(batchRequest);
+        Control searchResultEntryCtrl = buildSearchResultEntryMetadaCtrl(batchRequest);
+        Control federatedResponseDataCtrl = buildFederatedResponseDataCtrl(batchRequest);
         while (responseCount < count) {
             if (batchResp.getBatchResponses().get(responseCount).getValue() instanceof SearchResponse) {
-                ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultDone().getControl().add(ctrl);
+                ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultDone().getControl().add(federatedResponseDataCtrl);
                 int entryCount = 0;
                 int totalEntryCount = ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().size();
                 while (entryCount < totalEntryCount) {
-                    ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().get(entryCount).getControl().add(ctrl);
+                    ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().get(entryCount).getControl().add(searchResultEntryCtrl);
                     entryCount++;
                 }
             }
@@ -234,26 +232,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         return strOid;
     }
 
-    /**
-     *
-     * @param b
-     * @return Object
-     */
-    private static Object decodeBase64(byte[] b) {
-        Object obj = null;
-        ObjectInputStream in;
-        if (null != b && b.length > 0) {
-            ByteArrayInputStream bis = new ByteArrayInputStream(b);
-            try {
-                in = new ObjectInputStream(MimeUtility.decode(bis, "base64"));
-                obj = in.readObject();
-            } catch (Exception ex) {
-                LOGGER.error(ex);
-            }
-        }
-        return obj;
-    }
-
     @Override
     protected void addError(String dirId, String reqId, BatchResponse batchResp, Throwable th) {
         // TODO: improve error handling
@@ -271,15 +249,32 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param batchRequest
      * @return Control
      */
-    private static Control buildFederatedRespondeCtrl(BatchRequest batchRequest) {
+    private static Control buildFederatedResponseDataCtrl(BatchRequest batchRequest) {
         Control ctrl = new Control();
         ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
         ctrl.setCriticality(false);
-        FederatedSearchResponseData oResponse = new FederatedSearchResponseData();
-        FederatedResponseStatus status = new FederatedResponseStatus();
-        status.setFederatedRequestId(iheoid);
-        oResponse.setFederatedResponseStatus(status);
-        ctrl.setControlValue(convertToBytes(oResponse));
+        FederatedSearchResponseData oFederatedSearchResponseData = new FederatedSearchResponseData();
+        FederatedResponseStatus oStatus = new FederatedResponseStatus();
+        oStatus.setDirectoryId(dirStaticId);
+        oStatus.setFederatedRequestId(iheoid);
+        oStatus.setResultMessage("Success");
+        oFederatedSearchResponseData.setFederatedResponseStatus(oStatus);
+        ctrl.setControlValue(convertToBytes(oFederatedSearchResponseData));
+        return ctrl;
+    }
+
+    /**
+     *
+     * @param batchRequest
+     * @return Control
+     */
+    private static Control buildSearchResultEntryMetadaCtrl(BatchRequest batchRequest) {
+        Control ctrl = new Control();
+        ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
+        ctrl.setCriticality(false);
+        SearchResultEntryMetadata oSearchResultEntryMetadata = new SearchResultEntryMetadata();
+        oSearchResultEntryMetadata.setDirectoryId(dirStaticId);
+        ctrl.setControlValue(convertToBytes(oSearchResultEntryMetadata));
         return ctrl;
     }
 
@@ -289,6 +284,27 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @return byte
      */
     private static byte[] convertToBytes(FederatedSearchResponseData resData) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        OutputStream mout;
+        ObjectOutputStream out;
+        try {
+            mout = MimeUtility.encode(bos, "base64");
+            out = new ObjectOutputStream(mout);
+            out.writeObject(resData);
+            out.flush();
+        } catch (Exception ex) {
+            LOGGER.error(ex);
+        }
+        byte[] bytes = bos.toByteArray();
+        return bytes;
+    }
+
+    /**
+     *
+     * @param resData
+     * @return byte
+     */
+    private static byte[] convertToBytes(SearchResultEntryMetadata resData) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream mout;
         ObjectOutputStream out;

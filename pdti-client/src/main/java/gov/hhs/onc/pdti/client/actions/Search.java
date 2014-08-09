@@ -42,8 +42,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 import org.apache.struts2.interceptor.ServletRequestAware;
 
 public class Search extends BaseAction implements ServletRequestAware {
@@ -98,8 +96,6 @@ public class Search extends BaseAction implements ServletRequestAware {
     public String execute() {
         LOGGER.debug("execute() called...");
         LOGGER.debug("url =" + url + "=");
-//        LOGGER.debug("showDetails =" + showDetails + "=");
-//        LOGGER.debug("requestId =" + requestId + "=");
         URL wsdlUrl = null;
         requestId = UUID.randomUUID().toString();
         try {
@@ -242,6 +238,7 @@ public class Search extends BaseAction implements ServletRequestAware {
                 searchRequest.setRequestId(requestId);
             }
         }
+
         Control ctrl = new Control();
         ctrl.setType("1.2.3.4.5");
         ctrl.setCriticality(false);
@@ -259,8 +256,8 @@ public class Search extends BaseAction implements ServletRequestAware {
         attributeValueAssertion.setName(searchAttribute);
         attributeValueAssertion.setValue(searchString);
         filter.setEqualityMatch(attributeValueAssertion);
-        searchRequest.setFilter(filter);        
-        batchRequest.getBatchRequests().add(searchRequest);        
+        searchRequest.setFilter(filter);
+        batchRequest.getBatchRequests().add(searchRequest);
         return batchRequest;
     }
 
@@ -298,7 +295,7 @@ public class Search extends BaseAction implements ServletRequestAware {
         }
         searchResults = ArrayUtils.addAll(searchResults, newSearchResults);
     }
-    
+
     public void setSearchAttribute(String searchAttribute) {
         this.searchAttribute = searchAttribute;
     }
@@ -391,9 +388,8 @@ public class Search extends BaseAction implements ServletRequestAware {
         this.textDN = textDN;
     }
 
-    
     /**
-     * 
+     *
      * @param reqData
      * @return byte
      */
