@@ -42,6 +42,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.soap.AddressingFeature;
+
 import org.apache.struts2.interceptor.ServletRequestAware;
 
 public class Search extends BaseAction implements ServletRequestAware {
@@ -138,7 +140,7 @@ public class Search extends BaseAction implements ServletRequestAware {
         HpdPlusProviderInformationDirectoryService hpdPlusProviderInformationDirectoryService
                 = new HpdPlusProviderInformationDirectoryService(wsdlUrl);
         HpdPlusResponse hpdPlusResponse = hpdPlusProviderInformationDirectoryService
-                .getHpdPlusProviderInformationDirectoryPortSoap()
+                .getHpdPlusProviderInformationDirectoryPortSoap(new AddressingFeature())
                 .hpdPlusProviderInformationQueryRequest(buildHpdPlusRequest());
         hpdPlusResponse.setDirectoryUri(wsdlUrl.toString());
         processHpdPlusResponse(hpdPlusResponse);
@@ -182,8 +184,8 @@ public class Search extends BaseAction implements ServletRequestAware {
         LOGGER.debug("doDsmlSearch(URL)");
         ProviderInformationDirectoryService providerInformationDirectoryService
                 = new ProviderInformationDirectoryService(wsdlUrl);
-        BatchResponse batchResponse = providerInformationDirectoryService.getProviderInformationDirectoryPortSoap()
-                .providerInformationQueryRequest(buildBatchRequest(false));
+        BatchResponse batchResponse = providerInformationDirectoryService.getProviderInformationDirectoryPortSoap(new
+				AddressingFeature()).providerInformationQueryRequest(buildBatchRequest(false));
         List<JAXBElement<?>> batchResponseJAXBElements = batchResponse.getBatchResponses();
         for (JAXBElement<?> batchResponseJAXBElement : batchResponseJAXBElements) {
             Object value = batchResponseJAXBElement.getValue();
