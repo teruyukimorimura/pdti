@@ -33,7 +33,14 @@ public class PolicyInterceptorImpl extends AbstractDirectoryInterceptor<BatchReq
         for (DsmlMessage batchReqMsg : batchReq.getBatchRequests()) {
             batchReqMsgClass = batchReqMsg.getClass();
 
-            if (!ClassUtils.isAssignable(new Class<?>[] { batchReqMsgClass }, VALID_REQ_MSG_CLASSES)) {
+			boolean valid = false;
+			for (Class<?> validReqMsgClass : VALID_REQ_MSG_CLASSES) {
+				if (ClassUtils.isAssignable(batchReqMsgClass, validReqMsgClass)) {
+					valid = true;
+					break;
+				}
+			}
+			if (!valid) {
                 throw new DirectoryInterceptorNoOpException("Invalid DSML batch request message (directoryId=" + dirDesc.getDirectoryId() + ", requestId="
                         + reqId + ", class=" + batchReqMsgClass.getName() + ").");
             }
