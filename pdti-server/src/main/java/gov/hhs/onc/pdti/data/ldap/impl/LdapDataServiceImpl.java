@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import gov.hhs.onc.pdti.ws.api.DsmlMessage;
+import gov.hhs.onc.pdti.ws.api.ErrorResponse;
+import gov.hhs.onc.pdti.ws.api.SearchResponse;
 import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -25,11 +29,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBElement;
+
 @Qualifier("ldap")
 @Scope("singleton")
 @Service("dataService")
 public class LdapDataServiceImpl extends AbstractDataService<LdapDataSource> implements LdapDataService {
-    private final static Map<Integer, String> TRANS_REQ_ID_MAP = new HashMap<>();
 
     private final static Logger LOGGER = Logger.getLogger(LdapDataServiceImpl.class);
 
@@ -41,7 +46,6 @@ public class LdapDataServiceImpl extends AbstractDataService<LdapDataSource> imp
         LdapConnectionConfig ldapConnConfig = dataSource.toConfig();
         LdapConnection ldapConn = null;
         boolean useTransReqId = useTransactionalRequestId(dataSource);
-        int transReqId = -1;
 
         try {
             ldapConn = new LdapNetworkConnection(ldapConnConfig);
@@ -49,14 +53,14 @@ public class LdapDataServiceImpl extends AbstractDataService<LdapDataSource> imp
             connectAndBind(dataSource, ldapConn);
 
             if (useTransReqId) {
-                transReqId = setTransactionalRequestId(batchReq);
+                setTransactionalRequestId(batchReq);
             }
 
             BatchResponse batchResp = this.dsmlService.processDsml(new Dsmlv2Engine(ldapConn, ldapConnConfig.getName(), ldapConnConfig.getCredentials()),
                     batchReq);
 
             if (useTransReqId) {
-                removeTransactionalRequestId(batchReq, batchResp, transReqId);
+                restoreTransactionalRequestId(batchReq, batchResp);
             }
 
             return batchResp;
@@ -67,28 +71,77 @@ public class LdapDataServiceImpl extends AbstractDataService<LdapDataSource> imp
         }
     }
 
-    private static int setTransactionalRequestId(BatchRequest batchReq) {
-        String reqId = batchReq.getRequestId();
-        int transReqId = Math.abs(reqId.hashCode());
+    private static void setTransactionalRequestId(BatchRequest batchReq) {
+		// replace request IDs in the request to integers
+		batchReq.setRequestId(toInteger(batchReq.getRequestId()));
 
-        DirectoryUtils.setRequestId(batchReq, Integer.toString(transReqId));
-        TRANS_REQ_ID_MAP.put(transReqId, reqId);
-
-        return transReqId;
+		for (DsmlMessage batchReqMsg : batchReq.getBatchRequests()) {
+			batchReqMsg.setRequestId(toInteger(batchReqMsg.getRequestId()));
+		}
     }
 
-    private static String removeTransactionalRequestId(BatchRequest batchReq, BatchResponse batchResp, int transReqId) {
-        if (TRANS_REQ_ID_MAP.containsKey(transReqId)) {
-            String reqId = TRANS_REQ_ID_MAP.remove(transReqId);
+    private static void restoreTransactionalRequestId(BatchRequest batchReq, BatchResponse batchResp) {
 
-            DirectoryUtils.setRequestId(batchReq, reqId);
-            DirectoryUtils.setRequestId(batchResp, reqId);
+		// restore request IDs in the request
+		batchReq.setRequestId(toUUID(batchReq.getRequestId()));
+		for (DsmlMessage batchReqMsg : batchReq.getBatchRequests()) {
+			batchReqMsg.setRequestId(toUUID(batchReqMsg.getRequestId()));
+		}
 
-            return reqId;
-        } else {
-            return null;
-        }
+		// ApacheDS DSMLv2Engine doesn't return BatchResponse with requestID attributes in BatchRequest,
+		// so requestID attributes in BatchResponse is set based on BatchRequest
+		batchResp.setRequestId(batchReq.getRequestId());
+		int index = 0;
+		for (DsmlMessage batchReqMsg : batchReq.getBatchRequests()) {
+			if (index >= batchResp.getBatchResponses().size())
+				break;
+
+			//
+			JAXBElement<?> batchRespItem = batchResp.getBatchResponses().get(index);
+			String requestId = batchReqMsg.getRequestId();
+
+			//
+			if (DsmlMessage.class.isAssignableFrom(batchRespItem.getDeclaredType())) {
+				((DsmlMessage) batchRespItem.getValue()).setRequestId(requestId);
+			} else if (ErrorResponse.class.isAssignableFrom(batchRespItem.getDeclaredType())) {
+				((ErrorResponse) batchRespItem.getValue()).setRequestId(requestId);
+			} else if (SearchResponse.class.isAssignableFrom(batchRespItem.getDeclaredType())) {
+				SearchResponse searchResponse = (SearchResponse) batchRespItem.getValue();
+				searchResponse.setRequestId(requestId);
+				if (searchResponse.getSearchResultDone() != null) {
+					searchResponse.getSearchResultDone().setRequestId(requestId);
+				}
+			}
+			++index;
+		}
+
     }
+
+	private static ThreadLocal<Map<String, String>> REQUEST_ID_MAP = new ThreadLocal<Map<String, String>>() {
+		@Override
+		protected Map<String, String> initialValue() {
+			return new HashMap<String, String>();
+		}
+	};
+
+	private static String toInteger(String uuid) {
+		if (uuid != null) {
+			String id = String.valueOf(Math.abs(uuid.hashCode()));
+			LOGGER.debug("toInteger, UUID:id=" + uuid + ":" + id);
+			REQUEST_ID_MAP.get().put(id, uuid);
+			return id;
+		}
+		return null;
+	}
+
+	private static String toUUID(String id) {
+		if (id != null && REQUEST_ID_MAP.get().containsKey(id)) {
+			String uuid = REQUEST_ID_MAP.get().get(id);
+			LOGGER.debug("toUUID, UUID:id=" + uuid + ":" + id);
+			return uuid;
+		}
+		return id;
+	}
 
     private static boolean useTransactionalRequestId(LdapDataSource dataSource) {
         return dataSource.getType() == LdapServerType.APACHEDS;
@@ -143,4 +196,13 @@ public class LdapDataServiceImpl extends AbstractDataService<LdapDataSource> imp
     protected void setDataSources(List<LdapDataSource> dataSources) {
         this.dataSources = dataSources;
     }
+
+	/**
+	 * Set DirectoryDsmlService
+	 * @param dsmlService
+	 */
+	public void setDsmlService (DirectoryDsmlService dsmlService) {
+		this.dsmlService = dsmlService;
+	}
+
 }
