@@ -10,7 +10,7 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <beans:bean id="ldapDataSourceDefault" class="gov.hhs.onc.pdti.data.ldap.impl.LdapDataSourceImpl" parent="ldapDataSource"
-        p:type="APACHEDS"
-        p:host="localhost"
-        p:port="10389"/>
+        p:type="${ldap.type}"
+        p:host="${ldap.host}"
+        p:port="${ldap.port}"/>
 </beans:beans>
