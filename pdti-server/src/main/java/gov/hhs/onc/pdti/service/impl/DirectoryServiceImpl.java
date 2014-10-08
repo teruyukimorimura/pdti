@@ -15,7 +15,6 @@ import gov.hhs.onc.pdti.interceptor.DirectoryResponseInterceptor;
 import gov.hhs.onc.pdti.service.DirectoryService;
 import gov.hhs.onc.pdti.statistics.entity.PDTIStatisticsEntity;
 import gov.hhs.onc.pdti.statistics.service.PdtiAuditLog;
-import gov.hhs.onc.pdti.statistics.service.impl.PdtiAuditLogImpl;
 import gov.hhs.onc.pdti.util.DirectoryUtils;
 import gov.hhs.onc.pdti.ws.api.BatchRequest;
 import gov.hhs.onc.pdti.ws.api.BatchResponse;
@@ -28,16 +27,14 @@ import gov.hhs.onc.pdti.server.xml.FederatedResponseStatus;
 import gov.hhs.onc.pdti.server.xml.FederatedSearchResponseData;
 import gov.hhs.onc.pdti.server.xml.SearchResultEntryMetadata;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.SortedSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.XmlMappingException;
 import org.springframework.stereotype.Service;
@@ -48,18 +45,22 @@ import org.springframework.stereotype.Service;
 public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest, BatchResponse> implements DirectoryService<BatchRequest, BatchResponse> {
 
     private final static Logger LOGGER = Logger.getLogger(DirectoryServiceImpl.class);
-    private static String iheoid = "";
+
+	@Value("${ihefederationoid}")
+	String iheoid;
+
     @Autowired
     @DirectoryStandard(DirectoryStandardId.IHE)
     private ObjectFactory objectFactory;
     private static String dirStaticId = "";
 
+	@Autowired
+	PdtiAuditLog pdtiAuditLogService;
+
     @Override
     public BatchResponse processRequest(BatchRequest batchReq) {
         DirectoryInterceptorNoOpException noOpException = null;
         boolean isError = false;
-        InputStream input = null;
-        Properties prop = new Properties();
         String dirId = this.dirDesc.getDirectoryId();
         dirStaticId = dirId;
         String reqId = DirectoryUtils.defaultRequestId(batchReq.getRequestId());
@@ -74,9 +75,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
             try {
                 this.interceptRequests(dirDesc, dirId, reqId, batchReq, batchResp);
                 batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
-                input = getClass().getClassLoader().getResourceAsStream("federationinfo.properties");
-                prop.load(input);
-                iheoid = prop.getProperty("ihefederationoid");
             } catch (DirectoryInterceptorNoOpException e) {
                 noOpException = e;
             } catch (DirectoryInterceptorException e) {
@@ -86,14 +84,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 isError = true;
                 this.addError(dirId, reqId, batchResp, th);
             } finally {
-                if (null != input) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-                        isError = true;
-                        this.addError(dirId, reqId, batchResp, e);
-                    }
-                }
             }
 
             if (noOpException != null) {
@@ -170,7 +160,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         } else {
             entity.setStatus("Success");
         }
-        PdtiAuditLog pdtiAuditLogService = PdtiAuditLogImpl.getInstance();
         pdtiAuditLogService.save(entity);
         return batchResp;
     }
@@ -180,7 +169,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param batchResp
      * @param batchRespCombine
      */
-    private static void combineFederatedBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine, BatchRequest batchRequest) {
+    private void combineFederatedBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine, BatchRequest batchRequest) {
         for (BatchResponse batchRespCombineItem : batchRespCombine) {
             batchResp.getBatchResponses().addAll(batchRespCombineItem.getBatchResponses());
         }
@@ -238,7 +227,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         batchResp.getBatchResponses().add(this.objectFactory.createBatchResponseErrorResponse(this.errBuilder.buildErrorResponse(reqId, ErrorType.OTHER, th)));
     }
 
-    private static void combineBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine) {
+    private void combineBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine) {
         for (BatchResponse batchRespCombineItem : batchRespCombine) {
             batchResp.getBatchResponses().addAll(batchRespCombineItem.getBatchResponses());
         }
@@ -249,7 +238,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param batchRequest
      * @return Control
      */
-    private static Control buildFederatedResponseDataCtrl(BatchRequest batchRequest) {
+    private Control buildFederatedResponseDataCtrl(BatchRequest batchRequest) {
         Control ctrl = new Control();
         ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
         ctrl.setCriticality(false);
@@ -268,7 +257,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param batchRequest
      * @return Control
      */
-    private static Control buildSearchResultEntryMetadaCtrl(BatchRequest batchRequest) {
+    private Control buildSearchResultEntryMetadaCtrl(BatchRequest batchRequest) {
         Control ctrl = new Control();
         ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
         ctrl.setCriticality(false);
@@ -283,7 +272,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param resData
      * @return byte
      */
-    private static byte[] convertToBytes(FederatedSearchResponseData resData) {
+    private byte[] convertToBytes(FederatedSearchResponseData resData) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream mout;
         ObjectOutputStream out;
@@ -304,7 +293,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @param resData
      * @return byte
      */
-    private static byte[] convertToBytes(SearchResultEntryMetadata resData) {
+    private byte[] convertToBytes(SearchResultEntryMetadata resData) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream mout;
         ObjectOutputStream out;
@@ -324,28 +313,28 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
     @DirectoryStandard(DirectoryStandardId.IHE)
     @DirectoryType(DirectoryTypeId.MAIN)
     @Override
-    protected void setDirectoryDescriptor(DirectoryDescriptor dirDesc) {
+    public void setDirectoryDescriptor(DirectoryDescriptor dirDesc) {
         this.dirDesc = dirDesc;
     }
 
     @Autowired
     @DirectoryStandard(DirectoryStandardId.IHE)
     @Override
-    protected void setFederationService(FederationService<BatchRequest, BatchResponse> fedService) {
+    public void setFederationService(FederationService<BatchRequest, BatchResponse> fedService) {
         this.fedService = fedService;
     }
 
     @Autowired(required = false)
     @DirectoryStandard(DirectoryStandardId.IHE)
     @Override
-    protected void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<BatchRequest, BatchResponse>> reqInterceptors) {
+    public void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<BatchRequest, BatchResponse>> reqInterceptors) {
         this.reqInterceptors = reqInterceptors;
     }
 
     @Autowired(required = false)
     @DirectoryStandard(DirectoryStandardId.IHE)
     @Override
-    protected void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<BatchRequest, BatchResponse>> respInterceptors) {
+    public void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<BatchRequest, BatchResponse>> respInterceptors) {
         this.respInterceptors = respInterceptors;
     }
 }

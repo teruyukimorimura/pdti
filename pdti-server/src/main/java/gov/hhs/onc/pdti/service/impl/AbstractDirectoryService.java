@@ -13,6 +13,8 @@ import gov.hhs.onc.pdti.interceptor.DirectoryRequestInterceptor;
 import gov.hhs.onc.pdti.interceptor.DirectoryResponseInterceptor;
 import gov.hhs.onc.pdti.jaxb.DirectoryJaxb2Marshaller;
 import gov.hhs.onc.pdti.service.DirectoryService;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -93,11 +95,22 @@ public abstract class AbstractDirectoryService<T, U> implements DirectoryService
 
     protected abstract void addError(String dirId, String reqId, U queryResp, Throwable th);
 
-    protected abstract void setDirectoryDescriptor(DirectoryDescriptor dirDesc);
+	public void setDataServices(List<DirectoryDataService<?>> dataServices) {
+		this.dataServices = dataServices;
+	}
 
-    protected abstract void setFederationService(FederationService<T, U> fedService);
+	public void setDataService(DirectoryDataService<?> dataService) {
+		if (dataServices == null)
+			dataServices = new ArrayList<>();
+		dataServices.clear();
+		dataServices.add(dataService);
+	}
 
-    protected abstract void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<T, U>> reqInterceptors);
+    public abstract void setDirectoryDescriptor(DirectoryDescriptor dirDesc);
 
-    protected abstract void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<T, U>> respInterceptors);
+    public abstract void setFederationService(FederationService<T, U> fedService);
+
+    public abstract void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<T, U>> reqInterceptors);
+
+    public abstract void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<T, U>> respInterceptors);
 }

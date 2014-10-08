@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 @Scope("singleton")
 @Service("hpdPlusProviderInfoDir")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-@WebService(portName = "Hpd_Plus_ProviderInformationDirectory_Port_Soap", serviceName = "Hpd_Plus_ProviderInformationDirectory_Service", targetNamespace = "urn:gov:hhs:onc:hpdplus:2013")
+@WebService(portName = "Hpd_Plus_ProviderInformationDirectory_Port_Soap",
+		serviceName = "Hpd_Plus_ProviderInformationDirectory_Service",
+		targetNamespace = "urn:gov:hhs:onc:hpdplus:2013", endpointInterface = "gov.hhs.onc.pdti.ws.api.hpdplus.HpdPlusProviderInformationDirectoryPortType")
 @Addressing
 public class HpdPlusProviderInformationDirectoryImpl extends AbstractProviderInformationDirectory<HpdPlusRequest, HpdPlusResponse> implements
         HpdPlusProviderInformationDirectoryPortType {
@@ -36,7 +38,7 @@ public class HpdPlusProviderInformationDirectoryImpl extends AbstractProviderInf
     @Autowired
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     @Override
-    protected void setDirectoryService(DirectoryService<HpdPlusRequest, HpdPlusResponse> dirService) {
+    public void setDirectoryService(DirectoryService<HpdPlusRequest, HpdPlusResponse> dirService) {
         this.dirService = dirService;
     }
 }

@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 @Scope("singleton")
 @Service("providerInfoDir")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-@WebService(portName = "ProviderInformationDirectory_Port_Soap", serviceName = "ProviderInformationDirectory_Service", targetNamespace = "urn:ihe:iti:hpd:2010")
+@WebService(portName = "ProviderInformationDirectory_Port_Soap",
+		serviceName = "ProviderInformationDirectory_Service", targetNamespace = "urn:ihe:iti:hpd:2010",
+		endpointInterface = "gov.hhs.onc.pdti.ws.api.ProviderInformationDirectoryPortType")
 @Addressing
 public class ProviderInformationDirectoryImpl extends AbstractProviderInformationDirectory<BatchRequest, BatchResponse> implements
         ProviderInformationDirectoryPortType {
@@ -36,7 +38,7 @@ public class ProviderInformationDirectoryImpl extends AbstractProviderInformatio
     @Autowired
     @DirectoryStandard(DirectoryStandardId.IHE)
     @Override
-    protected void setDirectoryService(DirectoryService<BatchRequest, BatchResponse> dirService) {
+    public void setDirectoryService(DirectoryService<BatchRequest, BatchResponse> dirService) {
         this.dirService = dirService;
     }
 }

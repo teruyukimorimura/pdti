@@ -46,6 +46,9 @@ public class HpdPlusDirectoryServiceImpl extends AbstractDirectoryService<HpdPlu
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     private ObjectFactory hpdPlusObjectFactory;
 
+	@Autowired
+	PdtiAuditLog pdtiAuditLogService;
+
     @Override
     public HpdPlusResponse processRequest(HpdPlusRequest hpdPlusReq) {
         String dirId = this.dirDesc.getDirectoryId(), reqId = DirectoryUtils.defaultRequestId(hpdPlusReq.getRequestId());
@@ -128,7 +131,6 @@ public class HpdPlusDirectoryServiceImpl extends AbstractDirectoryService<HpdPlu
         } else {
             entity.setStatus("Success");
         }
-        PdtiAuditLog pdtiAuditLogService = PdtiAuditLogImpl.getInstance();
         pdtiAuditLogService.save(entity);
         return hpdPlusResp;
     }
@@ -172,28 +174,28 @@ public class HpdPlusDirectoryServiceImpl extends AbstractDirectoryService<HpdPlu
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     @DirectoryType(DirectoryTypeId.MAIN)
     @Override
-    protected void setDirectoryDescriptor(DirectoryDescriptor dirDesc) {
+    public void setDirectoryDescriptor(DirectoryDescriptor dirDesc) {
         this.dirDesc = dirDesc;
     }
 
     @Autowired
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     @Override
-    protected void setFederationService(FederationService<HpdPlusRequest, HpdPlusResponse> fedService) {
+    public void setFederationService(FederationService<HpdPlusRequest, HpdPlusResponse> fedService) {
         this.fedService = fedService;
     }
 
     @Autowired(required = false)
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     @Override
-    protected void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<HpdPlusRequest, HpdPlusResponse>> reqInterceptors) {
+    public void setRequestInterceptors(SortedSet<DirectoryRequestInterceptor<HpdPlusRequest, HpdPlusResponse>> reqInterceptors) {
         this.reqInterceptors = reqInterceptors;
     }
 
     @Autowired(required = false)
     @DirectoryStandard(DirectoryStandardId.HPD_PLUS_PROPOSED)
     @Override
-    protected void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<HpdPlusRequest, HpdPlusResponse>> respInterceptors) {
+    public void setResponseInterceptors(SortedSet<DirectoryResponseInterceptor<HpdPlusRequest, HpdPlusResponse>> respInterceptors) {
         this.respInterceptors = respInterceptors;
     }
 }
