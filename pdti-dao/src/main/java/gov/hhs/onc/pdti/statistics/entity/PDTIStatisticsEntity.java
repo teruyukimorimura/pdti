@@ -7,12 +7,17 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "pdtiauditlog")
+@NamedQueries({
+	@NamedQuery(name = "pdtiauditlog.getAll", query = "SELECT p FROM PDTIStatisticsEntity p ORDER BY p.id")
+})
 public class PDTIStatisticsEntity implements Serializable {
 
     @Column(name = "basedn", length = 50, nullable = true)

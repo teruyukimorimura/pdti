@@ -2,35 +2,25 @@ package gov.hhs.onc.pdti.statistics.dao;
 
 import gov.hhs.onc.pdti.statistics.entity.PDTIStatisticsEntity;
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
 @Repository
 @Scope("prototype")
-@Transactional
 public class PDTIStatisticsDAO {
-    
-    private SessionFactory sessionFactory;
 
-    /**
-     * 
-     * @return 
-     */
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    /**
-     * 
-     * @param sessionFactory 
-     */
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+	/**
+	 * entity manager.
+	 */
+	@Autowired
+	@PersistenceContext(unitName = "persistenceUnit")
+	private EntityManager entityManager;
 
     /**
      *
@@ -38,8 +28,7 @@ public class PDTIStatisticsDAO {
      * @return PDTIStatisticsEntity
      */
     public PDTIStatisticsEntity getPDTIStatisticsEntityById(String PDTIStatisticsEntityId) {
-        return (PDTIStatisticsEntity) this.sessionFactory.getCurrentSession().get(PDTIStatisticsEntity.class,
-                PDTIStatisticsEntityId);
+		return entityManager.find(PDTIStatisticsEntity.class, PDTIStatisticsEntityId);
     }
 
     /**
@@ -47,34 +36,40 @@ public class PDTIStatisticsDAO {
      * @return List
      */
     public List<PDTIStatisticsEntity> getAllPDTIStatisticsEntity() {
-        Criteria criteria = this.sessionFactory.getCurrentSession().createCriteria(
-                PDTIStatisticsEntity.class);
-        criteria.setFetchMode("status", FetchMode.JOIN);
-        return criteria.list();
+		TypedQuery<PDTIStatisticsEntity> namedQuery =
+				entityManager.createNamedQuery("pdtiauditlog.getAll", PDTIStatisticsEntity.class);
+		return namedQuery.getResultList();
     }
 
     /**
      *
      * @param oPDTIStatisticsEntity
      */
+	@Transactional
     public void save(PDTIStatisticsEntity oPDTIStatisticsEntity) {
-        this.sessionFactory.getCurrentSession().save(oPDTIStatisticsEntity);
+		entityManager.persist(oPDTIStatisticsEntity);
+		entityManager.flush();
     }
 
     /**
      *
      * @param ogetPDTIStatisticsEntityId
      */
+	@Transactional
     public void update(PDTIStatisticsEntity ogetPDTIStatisticsEntityId) {
-        this.sessionFactory.getCurrentSession().saveOrUpdate(ogetPDTIStatisticsEntityId);
+		entityManager.merge(ogetPDTIStatisticsEntityId);
+		entityManager.flush();
     }
 
     /**
      *
      * @param strPDTIStatisticsEntityId
      */
+	@Transactional
     public void delete(String strPDTIStatisticsEntityId) {
-        PDTIStatisticsEntity oPDTIStatisticsEntityId = getPDTIStatisticsEntityById(strPDTIStatisticsEntityId);
-        this.sessionFactory.getCurrentSession().saveOrUpdate(oPDTIStatisticsEntityId);
+		PDTIStatisticsEntity pdtiStatisticsEntity =
+				entityManager.find(PDTIStatisticsEntity.class, strPDTIStatisticsEntityId);
+		entityManager.remove(pdtiStatisticsEntity);
+		entityManager.flush();
     }
 }
