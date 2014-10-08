@@ -9,6 +9,7 @@ import gov.hhs.onc.pdti.ws.api.BatchRequest;
 import gov.hhs.onc.pdti.ws.api.BatchResponse;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import javax.xml.bind.JAXBElement;
+
 import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,17 @@ public class DirectoryDsmlServiceImpl implements DirectoryDsmlService {
 
     @Override
     public BatchResponse processDsml(Dsmlv2Engine dsmlEngine, BatchRequest batchReq) throws DirectoryDsmlException {
+		String processResponse = null;
         try {
             String batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
 
             LOGGER.debug("Processing DSML batch request (id=" + batchReq.getRequestId() + ").");
 
-            JAXBElement<BatchResponse> batchRespElement = (JAXBElement<BatchResponse>) this.dirJaxb2Marshaller.unmarshal(dsmlEngine.processDSML(batchReqStr));
+			// processDSML
+			processResponse = dsmlEngine.processDSML(batchReqStr);
+
+			// unmarshal processResponse XML String
+			JAXBElement<BatchResponse> batchRespElement = (JAXBElement<BatchResponse>) this.dirJaxb2Marshaller.unmarshal(processResponse);
             BatchResponse batchResp = batchRespElement.getValue();
 
             LOGGER.debug("Processed DSML batch request (id=" + batchReq.getRequestId() + ") into DSML batch response (num="
@@ -44,6 +50,7 @@ public class DirectoryDsmlServiceImpl implements DirectoryDsmlService {
 
             return batchResp;
         } catch (XmlMappingException | XmlPullParserException e) {
+			LOGGER.error("Unable to process DSML batch transaction. response=" + processResponse, e);
             throw new DirectoryDsmlException("Unable to process DSML batch transaction.", e);
         }
     }
