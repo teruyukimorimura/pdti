@@ -7,32 +7,47 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     
     <display-name>Provider Directories Test Implementation (PDTI) Server Webapp</display-name>
-    
-    <servlet>
-        <servlet-name>jaxws-spring</servlet-name>
-        <servlet-class>com.sun.xml.ws.transport.http.servlet.WSSpringServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>jaxws-spring</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-    
+
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>pdti-server</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/META-INF/data/*.xml,
+			/WEB-INF/jaxws-spring-servlet.xml
+		</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextInitializerClasses</param-name>
+		<param-value>gov.hhs.onc.pdti.context.DirectoryContextInitializer</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/log4j.xml</param-value>
+	</context-param>
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-    
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            /META-INF/data/*.xml,
-            /WEB-INF/jaxws-spring-servlet.xml
-        </param-value>
-    </context-param>
-    <context-param>
-        <param-name>contextInitializerClasses</param-name>
-        <param-value>gov.hhs.onc.pdti.context.DirectoryContextInitializer</param-value>
-    </context-param>
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>jaxws-spring</servlet-name>
+		<servlet-class>com.sun.xml.ws.transport.http.servlet.WSSpringServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>jaxws-spring</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+
 </web-app>
