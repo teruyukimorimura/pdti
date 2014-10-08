@@ -1,0 +1,223 @@
+dn: cn=schema
+objectclass: top
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.1 
+  NAME 'credentialType'
+  DESC 'Type of Credential<degree, certificate, credential>'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.26 
+  NAME 'hpdIntegrationProfile'
+  DESC 'A coded value set whice describes the integration profile.  Store as a delimited string, like and address:  IntegrationProfile%IntegrationProfileVersion$IntegrationProfileOptions.  Values are defined through local configuration.'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.28 
+  NAME 'hpdCertificate'
+  DESC 'Public Digital Certificate for this service'
+  EQUALITY octetStringMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.29 
+  NAME 'hpdProviderLegalAddress'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.41
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.23 
+  NAME 'hpdHasAService'
+  DESC 'Individual-Organization Electroinc Service Information'
+  EQUALITY distinguishedNameMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.22 
+  NAME 'hpdHasAnOrg'
+  DESC 'Reference for Organizational Provider (R)'
+  EQUALITY distinguishedNameMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.6 
+  NAME 'credentialRenewalDate'
+  DESC 'Date when credential is due renewal'
+  EQUALITY generalizedTimeMatch
+  ORDERING generalizedTimeOrderingMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.31 
+  NAME 'hpdSecurityProfile'
+  DESC 'A coded value set which describes the Security Profile of a s ervice. Stored as a delimited string, like and address:  SecurityProfile%S ecurityProfileVersion$SecurityProfileConstraints.  Values are defined thro ugh local configuration.'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.4 
+  NAME 'credentialDescription'
+  DESC 'Additional information on the credential'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.7 
+  NAME 'credentialStatus'
+  DESC 'Values are defined in table 3.58.4.1.2.3-1'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.2 
+  NAME 'credentialName'
+  DESC 'Name of Credential, degree, or certification that belongs to providerFollows the ISO21091 naming format as that of the HCStandardRole:credentialName@organization_domain_namewhere credentialName is the standard name of the credential, andorganization_domain_name is the domain name of the organization forthose credentials local to the organization, orcredential@Localitywhere credential is the standard name of the structural role if applicable to theLocality (i.e., state).'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.2 
+  NAME 'hpdProviderLanguageSupported'
+  DESC 'Languages that the provider supports. Recommended best practice is to use RFC 3066 [RFC 3066] which, in conjunction with ISO 639 [ISO639], defines two- and three-letter primary language tags with optional subtags. Examples include "en" or "eng" for English, "akk" for Akkadian, and "en- GB" for English used in the United Kingdom."'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.5 
+  NAME 'credentialIssueDate'
+  DESC 'Date when credential was issued to the provider'
+  EQUALITY generalizedTimeMatch
+  ORDERING generalizedTimeOrderingMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.27 
+  NAME 'hpdContentProfile'
+  DESC 'A coded value set whice describes the content profile.  Store as a delimited string, like and address:  ContentProfile%ContentProfileVersion$ContentProfileConstraints.  Values are defined through local configuration.'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.3 
+  NAME 'hpdProviderBillingAddress'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.41
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.25 
+  NAME 'hpdServiceAddress'
+  DESC 'The electronic service address possibly in URI or email address form'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.5 
+  NAME 'hpdMedicalRecordsDeliveryEmailAddress'
+  DESC 'Electronic mailing address of provider where medical records can be sent'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.6 
+  NAME 'memberOf'
+  DESC 'Group to which provider is a member of. A provider can be a member of zero, one or many groups.'
+  EQUALITY distinguishedNameMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.20 
+  NAME 'hpdMemberId'
+  DESC 'Unique Identifier for Membership'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.4 
+  NAME 'hpdProviderPracticeAddress'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.41
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.21 
+  NAME 'hpdHasAProvider'
+  DESC 'Reference for Individual Provider (R)'
+  EQUALITY distinguishedNameMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.7 
+  NAME 'hpdProviderMailingAddress'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.41
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.30 
+  NAME 'hpdCredentialId'
+  DESC 'An identifier assigned by the provider directory whose purpose is to uniquely identify a unique Credential Object'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.24 
+  NAME 'hpdServiceId'
+  DESC 'An identifier assigned by the provider directory whose purpose is to uniquely identify a unique Electronic Service Object'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.8 
+  NAME 'hpdCredential'
+  DESC 'Detailed Health related credentials earned by provider. DN to one or more credential entries in the HPDProviderCredential class'
+  EQUALITY distinguishedNameMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.1.1 
+  NAME 'hpdProviderStatus'
+  DESC 'Maintain status of provider in directory. Values are defined in table 3.58.4.1.2.3-1'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.19376.1.2.4.2.3 
+  NAME 'credentialNumber'
+  DESC 'Credential Identifier Follows the ISO 21091 UID format: (Issuing Authority OID: ID) The issuing authority OID could be used to identify the issuing agency, state and country.'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+ )
+attributeTypes: ( 1.3.6.1.4.1.1466.115.121.1.1.6 
+  NAME 'hpdRejectMailFrom'
+  DESC 'date from which new mail will be rejected'
+  EQUALITY generalizedTimeMatch
+  ORDERING generalizedTimeOrderingMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+  SINGLE-VALUE
+ )
+objectClasses: ( 1.3.6.1.4.1.19376.1.2.4.1 
+  NAME 'HPDProvider'
+  SUP top
+  AUXILIARY
+  MAY ( hpdProviderStatus $ hpdProviderLanguageSupported $ hpdProviderBillingAddress $ hpdProviderMailingAddress $ hpdProviderPracticeAddress $ hpdMedicalRecordsDeliveryEmailAddress $ memberOf $ hpdProviderLegalAddress $ hpdHasAService $ hpdCredential )
+ )
+objectClasses: ( 1.3.6.1.4.1.19376.1.2.4.5 
+  NAME 'HPDElectronicService'
+  SUP top
+  STRUCTURAL
+  MUST ( hpdServiceAddress $ hpdServiceId )
+  MAY ( hpdCertificate $ hpdContentProfile $ hpdIntegrationProfile $ hpdSecurityProfile )
+ )
+objectClasses: ( 1.3.6.1.4.1.19376.1.2.4.2 
+  NAME 'HPDProviderCredential'
+  SUP top
+  STRUCTURAL
+  MUST ( credentialName $ credentialNumber $ credentialType $ hpdCredentialId )
+  MAY ( credentialIssueDate $ credentialRenewalDate $ credentialStatus $ credentialDescription $ hpdHasAnOrg $ hpdHasAProvider )
+ )
+objectClasses: ( 1.3.6.1.4.1.1466.115.121.1.1.7 
+  NAME 'hpdMailPerson'
+  DESC 'object class holding the hpdRejectMailFrom attribute'
+  AUXILIARY
+  MUST hpdRejectMailFrom
+ )
+objectClasses: ( 1.3.6.1.4.1.19376.1.2.4.4 
+  NAME 'HPDProviderMembership'
+  SUP top
+  STRUCTURAL
+  MUST ( hpdMemberId $ hpdHasAProvider $ hpdHasAnOrg )
+  MAY ( hpdHasAService $ telephoneNumber $ facsimileTelephoneNumber $ mobile $ Pager $ mail )
+ )

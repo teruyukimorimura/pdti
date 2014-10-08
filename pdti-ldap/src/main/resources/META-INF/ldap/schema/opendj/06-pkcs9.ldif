@@ -1,0 +1,22 @@
+dn: cn=schema
+objectClass: top
+objectClass: ldapSubentry
+objectClass: subschema
+cn: schema
+attributeTypes: ( 1.2.840.113549.1.9.25.1 NAME 'pKCS15Token' DESC 'PKCS #15 token PDU' EQUALITY octetStringMatch ORDERING octetStringOrderingMatch SUBSTR octetStringSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 USAGE userApplications )
+attributeTypes: ( 1.3.6.1.5.5.7.9.4 NAME 'countryOfCitizenship' DESC 'Country of citizenship' EQUALITY caseIgnoreMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 COLLECTIVE USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.8 NAME 'unstructuredAddress' DESC 'PKCS #9 unstructured address' EQUALITY caseIgnoreMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications )
+attributeTypes: ( 1.3.6.1.5.5.7.9.1 NAME 'dateOfBirth' DESC 'Date of birth' EQUALITY generalizedTimeMatch ORDERING generalizedTimeOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 1.3.6.1.5.5.7.9.2 NAME 'placeOfBirth' DESC 'Place of birth' EQUALITY caseExactMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.7 NAME 'challengePassword' DESC 'Challenge password for certificate revocations' EQUALITY caseExactMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.25.2 NAME 'encryptedPrivateKeyInfo' DESC 'PKCS #8 encrypted private key info' EQUALITY octetStringMatch ORDERING octetStringOrderingMatch SUBSTR octetStringSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.25.5 NAME 'pKCS7PDU' DESC 'PKCS #7 ContentInfo PDU' EQUALITY octetStringMatch ORDERING octetStringOrderingMatch SUBSTR octetStringSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 USAGE userApplications )
+attributeTypes: ( 1.3.6.1.5.5.7.9.3 NAME 'gender' DESC 'Gender' EQUALITY caseIgnoreMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 2.5.4.65 NAME 'pseudonym' DESC 'Pseudonym' EQUALITY caseExactMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.6 NAME 'counterSignature' DESC 'PKCS #7 countersignature' EQUALITY octetStringMatch ORDERING octetStringOrderingMatch SUBSTR octetStringSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.3 NAME 'contentType' DESC 'PKCS #7 content type attribute' EQUALITY numericStringMatch ORDERING numericStringOrderingMatch SUBSTR caseExactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 1.2.840.113549.1.9.4 NAME 'messageDigest' DESC 'PKCS #7 mesage digest attribute' EQUALITY octetStringMatch ORDERING octetStringOrderingMatch SUBSTR octetStringSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE USAGE userApplications )
+attributeTypes: ( 1.3.6.1.5.5.7.9.5 NAME 'countryOfResidence' DESC 'Country of residence' EQUALITY caseIgnoreMatch ORDERING caseIgnoreOrderingMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 USAGE userApplications )
+objectClasses: ( 1.2.840.113549.1.9.24.1 NAME 'pkcsEntity' SUP top AUXILIARY MAY ( encryptedPrivateKeyInfo $ pKCS15Token $ pKCS7PDU $ userPKCS12 ) )
+objectClasses: ( 1.2.840.113549.1.9.24.2 NAME 'naturalPerson' SUP top AUXILIARY MAY ( serialNumber $ countryOfCitizenship $ gender $ emailAddress $ countryOfResidence $ placeOfBirth $ pseudonym $ dateOfBirth $ unstructuredAddress ) )
+
