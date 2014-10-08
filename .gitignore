@@ -10,6 +10,7 @@ pdti-ldap/src/main/resources/META-INF/ldap/schema/hpd_plus.ldif.log
 pdti-ldap/src/main/resources/META-INF/ldap/schema/pkcs9.ldif.log
 pdti-ldap/src/test/resources/META-INF/ldap/data/hpd_plus_test_data_1.ldif.log
 pdti-ldap/src/test/resources/META-INF/ldap/data/hpd_plus_test_data_2.ldif.log
+pdti-dao/derby.log
 
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
