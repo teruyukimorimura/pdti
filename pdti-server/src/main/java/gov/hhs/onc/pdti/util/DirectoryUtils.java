@@ -23,20 +23,31 @@ public abstract class DirectoryUtils {
     private final static QName XML_SCHEMA_STR_QUAL_NAME = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string", "xsd");
 
     public static BatchRequest setRequestId(BatchRequest batchReq, String reqId) {
-        batchReq.setRequestId(reqId);
 
+		// set request ID if it's empty
+		if (StringUtils.isEmpty(batchReq.getRequestId())) {
+			batchReq.setRequestId(reqId);
+		}
+
+		// The following block just sets invalid request IDs, it shouldn't be replaced by reqId
+/*
         for (DsmlMessage batchReqMsg : batchReq.getBatchRequests()) {
             batchReqMsg.setRequestId(reqId);
         }
+*/
 
         return batchReq;
     }
 
     public static BatchResponse setRequestId(BatchResponse batchResp, String reqId) {
-        SearchResponse searchRespMsg;
 
-        batchResp.setRequestId(reqId);
+		// set request ID if it's empty
+		if (StringUtils.isEmpty(batchResp.getRequestId())) {
+			batchResp.setRequestId(reqId);
+		}
 
+		// The following block just sets invalid request IDs, it shouldn't be replaced by reqId
+/*
         for (JAXBElement<?> batchRespItem : batchResp.getBatchResponses()) {
             if (DsmlMessage.class.isAssignableFrom(batchRespItem.getDeclaredType())) {
                 ((DsmlMessage) batchRespItem.getValue()).setRequestId(reqId);
@@ -48,6 +59,7 @@ public abstract class DirectoryUtils {
                 searchRespMsg.getSearchResultDone().setRequestId(reqId);
             }
         }
+*/
 
         return batchResp;
     }
