@@ -22,7 +22,9 @@ public class LdapCredentials {
     }
 
     public void setDnString(String dnStr) throws LdapInvalidDnException {
-        this.dn = new Dn(dnStr);
+		if (StringUtils.isNotBlank(dnStr)) {
+			this.dn = new Dn(dnStr);
+		}
     }
 
     @Override

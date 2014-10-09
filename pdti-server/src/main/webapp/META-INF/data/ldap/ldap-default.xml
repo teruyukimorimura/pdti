@@ -8,9 +8,24 @@
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-    
-    <beans:bean id="ldapDataSourceDefault" class="gov.hhs.onc.pdti.data.ldap.impl.LdapDataSourceImpl" parent="ldapDataSource"
-        p:type="${ldap.type}"
-        p:host="${ldap.host}"
-        p:port="${ldap.port}"/>
+
+	<beans:bean id="ldapCredentials" class="gov.hhs.onc.pdti.data.ldap.LdapCredentials">
+		<beans:property name="dnString" value="${ldap.dn}"/>
+		<beans:property name="password" value="${ldap.password}"/>
+	</beans:bean>
+
+	<!-- LDAP Data Source -->
+	<beans:bean id="ldapDataSourceDefault" class="gov.hhs.onc.pdti.data.ldap.impl.LdapDataSourceImpl"
+				parent="ldapDataSource">
+		<beans:property name="type">
+			<util:constant  static-field="${ldap.type}"></util:constant>
+		</beans:property>
+		<beans:property name="host" value="${ldap.host}"/>
+		<beans:property name="port" value="${ldap.port}"/>
+		<beans:property name="credentials" ref="ldapCredentials"/>
+		<beans:property name="ssl">
+			<util:constant  static-field="${ldap.ssl}"></util:constant>
+		</beans:property>
+	</beans:bean>
+
 </beans:beans>
