@@ -34,7 +34,10 @@ public class BaseDnInterceptorImpl extends AbstractDirectoryInterceptor<BatchReq
                 PredicateUtils.instanceofPredicate(SearchRequest.class))) {
 
             try {
-                searchReqMsg.setDn(DirectoryUtils.replaceAncestorDn(new Dn(searchReqMsg.getDn()), dirBaseDn).toString());
+				if (!DirectoryUtils.hasValidBaseDn(dirBaseDn, new Dn(searchReqMsg.getDn()))) {
+					throw new DirectoryInterceptorException("Invalid DN in DSML request at directory (id="	+
+							dirDesc .getDirectoryId() + ") Distinguished Name: " + dirBaseDn.getName());
+				}
             } catch (LdapInvalidDnException e) {
                 throw new DirectoryInterceptorException("Unable to target DSML search request at directory (id=" + dirDesc.getDirectoryId()
                         + ") Distinguished Name: " + dirBaseDn.getName(), e);

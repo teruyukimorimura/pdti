@@ -75,6 +75,15 @@ public abstract class DirectoryUtils {
         return new Dn(rdns.toArray(new Rdn[rdns.size()]));
     }
 
+	public static boolean hasValidBaseDn(Dn baseDn, Dn targetDn) throws LdapInvalidDnException {
+		if (baseDn.size() > targetDn.size()) {
+			return false;
+		}
+		List<Rdn> rdns = targetDn.getRdns().subList(targetDn.size() - baseDn.size(), targetDn.size());
+		Dn targetBaseDn = new Dn(rdns.toArray(new Rdn[rdns.size()]));
+		return baseDn.equals(targetBaseDn);
+	}
+
     public static JAXBElement<String> getStackTraceJaxbElement(Throwable th) {
         return new JAXBElement<>(XML_SCHEMA_STR_QUAL_NAME, String.class, DirectoryUtils.class, ExceptionUtils.getStackTrace(th));
     }
