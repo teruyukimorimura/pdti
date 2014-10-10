@@ -93,7 +93,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 } else if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Skipping processing of DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ").", noOpException);
                 }
-            } else {
+            } else if (!isError) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Processing DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + "):\n" + batchReqStr);
                 } else if (LOGGER.isDebugEnabled()) {
