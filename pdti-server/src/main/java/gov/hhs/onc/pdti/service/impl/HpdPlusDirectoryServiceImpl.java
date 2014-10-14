@@ -69,7 +69,11 @@ public class HpdPlusDirectoryServiceImpl extends AbstractDirectoryService<HpdPlu
         }
 
         try {
-            String hpdPlusReqStr = this.dirJaxb2Marshaller.marshal(this.hpdPlusObjectFactory.createHpdPlusRequest(hpdPlusReq));
+            String hpdPlusReqStr = null;
+			if (LOGGER.isTraceEnabled()) {
+				hpdPlusReqStr = this.dirJaxb2Marshaller.marshal(this.hpdPlusObjectFactory.createHpdPlusRequest
+						(hpdPlusReq));
+			}
 
             if (noOpException != null) {
                 if (LOGGER.isTraceEnabled()) {
@@ -115,17 +119,16 @@ public class HpdPlusDirectoryServiceImpl extends AbstractDirectoryService<HpdPlu
             this.addError(dirId, reqId, hpdPlusResp, e);
         }
 
-        try {
-            String hpdPlusRespStr = this.dirJaxb2Marshaller.marshal(this.hpdPlusObjectFactory.createHpdPlusResponse(hpdPlusResp));
-
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Processed HPD Plus request (directoryId=" + dirId + ", requestId=" + reqId + ") into HPD Plus response:\n" + hpdPlusRespStr);
-            } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processed HPD Plus request (directoryId=" + dirId + ", requestId=" + reqId + ") into HPD Plus response.");
-            }
-        } catch (XmlMappingException e) {
-            this.addError(dirId, reqId, hpdPlusResp, e);
-        }
+		if (LOGGER.isTraceEnabled()) {
+			try {
+				String hpdPlusRespStr = this.dirJaxb2Marshaller.marshal(this.hpdPlusObjectFactory.createHpdPlusResponse(hpdPlusResp));
+				LOGGER.trace("Processed HPD Plus request (directoryId=" + dirId + ", requestId=" + reqId + ") into HPD Plus response:\n" + hpdPlusRespStr);
+			} catch (XmlMappingException e) {
+				this.addError(dirId, reqId, hpdPlusResp, e);
+			}
+		} else if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed HPD Plus request (directoryId=" + dirId + ", requestId=" + reqId + ") into HPD Plus response.");
+		}
         if (null != hpdPlusResp && null != hpdPlusResp.getErrors() && hpdPlusResp.getErrors().size() > 0) {
             entity.setStatus("Error");
         } else {

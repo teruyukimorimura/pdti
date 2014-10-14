@@ -74,7 +74,9 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         try {
             try {
                 this.interceptRequests(dirDesc, dirId, reqId, batchReq, batchResp);
-                batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
+				if (LOGGER.isTraceEnabled()) {
+					batchReqStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchRequest(batchReq));
+				}
             } catch (DirectoryInterceptorNoOpException e) {
                 noOpException = e;
             } catch (DirectoryInterceptorException e) {
@@ -143,18 +145,17 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
             this.addError(dirId, reqId, batchResp, e);
         }
 
-        try {
-            String batchRespStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchResponse(batchResp));
-
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Processed DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ") into DSML batch response:\n" + batchRespStr);
-            } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processed DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ") into DSML batch response.");
-            }
-        } catch (XmlMappingException e) {
-            isError = true;
-            this.addError(dirId, reqId, batchResp, e);
-        }
+		if (LOGGER.isTraceEnabled()) {
+			try {
+				String batchRespStr = this.dirJaxb2Marshaller.marshal(this.objectFactory.createBatchResponse(batchResp));
+				LOGGER.trace("Processed DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ") into DSML batch response:\n" + batchRespStr);
+			} catch (XmlMappingException e) {
+				isError = true;
+				this.addError(dirId, reqId, batchResp, e);
+			}
+		} else if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed DSML batch request (directoryId=" + dirId + ", requestId=" + reqId + ") into DSML batch response.");
+		}
         if (isError) {
             entity.setStatus("Error");
         } else {
