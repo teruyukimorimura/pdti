@@ -74,7 +74,22 @@
             </util:list>
         </beans:property>
     </beans:bean>
-    
+
+	<beans:bean id="federationJaxb2Marshaller" class="gov.hhs.onc.pdti.jaxb.impl.FederationJaxb2MarshallerImpl">
+		<beans:property name="classesToBeBound">
+			<beans:list>
+				<beans:value>gov.hhs.onc.pdti.server.xml.FederatedRequestData</beans:value>
+				<beans:value>gov.hhs.onc.pdti.server.xml.FederatedSearchResponseData</beans:value>
+				<beans:value>gov.hhs.onc.pdti.server.xml.SearchResultEntryMetadata</beans:value>
+			</beans:list>
+		</beans:property>
+		<beans:property name="marshallerProperties">
+			<beans:map>
+				<beans:entry key="com.sun.xml.bind.xmlDeclaration" value="#{false}"/>
+			</beans:map>
+		</beans:property>
+	</beans:bean>
+
     <!-- Defining custom SOAP message factory -->
     <beans:bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory">
         <!-- Forcing the use of SOAP v1.2 -->

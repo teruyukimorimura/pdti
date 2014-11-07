@@ -1,6 +1,5 @@
 package gov.hhs.onc.pdti.service.impl;
 
-import com.sun.xml.messaging.saaj.packaging.mime.internet.MimeUtility;
 import gov.hhs.onc.pdti.DirectoryStandard;
 import gov.hhs.onc.pdti.DirectoryStandardId;
 import gov.hhs.onc.pdti.DirectoryType;
@@ -12,6 +11,8 @@ import gov.hhs.onc.pdti.interceptor.DirectoryInterceptorException;
 import gov.hhs.onc.pdti.interceptor.DirectoryInterceptorNoOpException;
 import gov.hhs.onc.pdti.interceptor.DirectoryRequestInterceptor;
 import gov.hhs.onc.pdti.interceptor.DirectoryResponseInterceptor;
+import gov.hhs.onc.pdti.jaxb.FederationJaxb2Marshaller;
+import gov.hhs.onc.pdti.server.xml.FederatedRequestData;
 import gov.hhs.onc.pdti.service.DirectoryService;
 import gov.hhs.onc.pdti.statistics.entity.PDTIStatisticsEntity;
 import gov.hhs.onc.pdti.statistics.service.PdtiAuditLog;
@@ -21,23 +22,32 @@ import gov.hhs.onc.pdti.ws.api.BatchResponse;
 import gov.hhs.onc.pdti.ws.api.Control;
 import gov.hhs.onc.pdti.ws.api.DsmlMessage;
 import gov.hhs.onc.pdti.ws.api.ErrorResponse.ErrorType;
+import gov.hhs.onc.pdti.ws.api.LDAPResult;
+import gov.hhs.onc.pdti.ws.api.LDAPResultCode;
 import gov.hhs.onc.pdti.ws.api.ObjectFactory;
 import gov.hhs.onc.pdti.ws.api.SearchResponse;
 import gov.hhs.onc.pdti.server.xml.FederatedResponseStatus;
 import gov.hhs.onc.pdti.server.xml.FederatedSearchResponseData;
 import gov.hhs.onc.pdti.server.xml.SearchResultEntryMetadata;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
+
+import gov.hhs.onc.pdti.ws.api.SearchResultEntry;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.XmlMappingException;
 import org.springframework.stereotype.Service;
+import org.springframework.xml.transform.StringResult;
+
+import javax.xml.bind.JAXBElement;
 
 @DirectoryStandard(DirectoryStandardId.IHE)
 @Scope("singleton")
@@ -57,7 +67,10 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
 	@Autowired
 	PdtiAuditLog pdtiAuditLogService;
 
-    @Override
+	@Autowired
+	private FederationJaxb2Marshaller federationJaxb2Marshaller;
+
+	@Override
     public BatchResponse processRequest(BatchRequest batchReq) {
         DirectoryInterceptorNoOpException noOpException = null;
         boolean isError = false;
@@ -69,7 +82,6 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         entity.setBaseDn(dirId);
         entity.setCreationDate(new Date());
         entity.setPdRequestType("BatchRequest");
-        String isFederatedRequest = getFederatedRequestId(batchReq);
         String batchReqStr = null;
         try {
             try {
@@ -103,20 +115,19 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 }
                 //If Federation is enabled, then a local ldap call and Federation both should happen.. 
                 //In the else part only local Directory will be searched.
-                if (null != isFederatedRequest
-                        && isFederatedRequest.length() > 0
-                        && isFederatedRequest.equalsIgnoreCase(iheoid)) {
+                if (isFederatedRequest(batchReq)) {
                     if (this.dataServices != null) {
                         for (DirectoryDataService<?> dataService : this.dataServices) {
                             try {
-                                combineBatchResponses(batchResp, dataService.processData(batchReq));
+                                combineFederatedBatchResponses(batchReq, batchResp, dataService.processData(batchReq));
                             } catch (Throwable th) {
                                 this.addError(dirId, reqId, batchResp, th);
                             }
                         }
                     }
+
                     try {
-                        combineFederatedBatchResponses(batchResp, this.fedService.federate(batchReq), batchReq);
+						combineBatchResponses(batchResp, this.fedService.federate(batchReq));
                     } catch (Throwable th) {
                         isError = true;
                         this.addError(dirId, reqId, batchResp, th);
@@ -136,6 +147,7 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
                 }
             }
         } catch (XmlMappingException e) {
+			LOGGER.error("Failed to process a request.", e);
             this.addError(dirId, reqId, batchResp, e);
         }
         try {
@@ -165,61 +177,126 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
         return batchResp;
     }
 
-    /**
-     *
-     * @param batchResp
-     * @param batchRespCombine
-     */
-    private void combineFederatedBatchResponses(BatchResponse batchResp, List<BatchResponse> batchRespCombine, BatchRequest batchRequest) {
-        for (BatchResponse batchRespCombineItem : batchRespCombine) {
-            batchResp.getBatchResponses().addAll(batchRespCombineItem.getBatchResponses());
-        }
 
-        int count = batchResp.getBatchResponses().size();
-        int responseCount = 0;
-        Control searchResultEntryCtrl = buildSearchResultEntryMetadaCtrl(batchRequest);
-        Control federatedResponseDataCtrl = buildFederatedResponseDataCtrl(batchRequest);
-        while (responseCount < count) {
-            if (batchResp.getBatchResponses().get(responseCount).getValue() instanceof SearchResponse) {
-                ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultDone().getControl().add(federatedResponseDataCtrl);
-                int entryCount = 0;
-                int totalEntryCount = ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().size();
-                while (entryCount < totalEntryCount) {
-                    ((SearchResponse) batchResp.getBatchResponses().get(responseCount).getValue()).getSearchResultEntry().get(entryCount).getControl().add(searchResultEntryCtrl);
-                    entryCount++;
-                }
-            }
-            responseCount++;
-        }
-    }
+	/**
+	 *
+	 * @param batchResp
+	 * @param batchRequest
+	 */
+	private void combineFederatedBatchResponses(BatchRequest batchRequest, BatchResponse batchResp, List<BatchResponse> batchRespCombine) {
+
+		if (batchRespCombine == null || batchRespCombine.size() == 0) {
+			return;
+		}
+
+		// mapping between requestId and DsmlMessage
+		Map<String, DsmlMessage> requestMap = new HashMap<>();
+
+		// create a map
+		Iterator<DsmlMessage> dsmlMessageIterator = batchRequest.getBatchRequests().iterator();
+		int requestIndex = 0;
+		while (dsmlMessageIterator.hasNext()) {
+			DsmlMessage dsmlMessage = dsmlMessageIterator.next();
+			if (StringUtils.isNotEmpty(dsmlMessage.getRequestId())) {
+				LOGGER.debug("Mapping key=" + dsmlMessage.getRequestId());
+				requestMap.put(dsmlMessage.getRequestId(), dsmlMessage);
+			}
+			// use index number if requestId is not available
+			LOGGER.debug("Mapping key=" + requestIndex);
+			requestMap.put(Integer.toString(requestIndex), dsmlMessage);
+			++requestIndex;
+		}
+
+		// walk through each SearchResponse
+		Iterator<BatchResponse> batchResponseIterator = batchRespCombine.iterator();
+		while (batchResponseIterator.hasNext()) {
+			BatchResponse batchResponse = batchResponseIterator.next();
+
+			//
+			Iterator<JAXBElement<?>> jaxbElementIterator = batchResponse.getBatchResponses().iterator();
+			int index = 0;
+			while (jaxbElementIterator.hasNext()) {
+				JAXBElement<?> jaxbElement = jaxbElementIterator.next();
+
+				// w
+				if (jaxbElement.getValue() instanceof SearchResponse) {
+
+					//
+					SearchResponse searchResponse = (SearchResponse) jaxbElement.getValue();
+
+					DsmlMessage dsmlMessage = null;
+					if (StringUtils.isNotEmpty(searchResponse.getRequestId()) && requestMap.containsKey(searchResponse.getRequestId())) {
+						LOGGER.debug("Getting DsmlMessage, key=" + searchResponse.getRequestId());
+						dsmlMessage = requestMap.get(searchResponse.getRequestId());
+					}
+					else {
+						LOGGER.debug("Getting DsmlMessage, key=" + index);
+						dsmlMessage = requestMap.get(Integer.toString(index));
+					}
+
+					// DsmlMessage is found, set Controls
+					if (dsmlMessage != null) {
+
+						//
+						List<Control> searchResultEntryCtrlList = buildSearchResultEntryMetadaCtrlList(dsmlMessage);
+						List<Control> federatedResponseDataCtrlList = buildFederatedResponseDataCtrlList(dsmlMessage,
+								searchResponse.getSearchResultDone());
+
+						// set SearchResultDone/Control
+						searchResponse.getSearchResultDone().getControl()
+								.addAll(federatedResponseDataCtrlList);
+
+						// set SearchResultEntry/Control
+						Iterator<SearchResultEntry> searchResultEntryIterator =
+								searchResponse.getSearchResultEntry().iterator();
+						while (searchResultEntryIterator.hasNext()) {
+							SearchResultEntry searchResultEntry = searchResultEntryIterator.next();
+							searchResultEntry.getControl().addAll(searchResultEntryCtrlList);
+						}
+					}
+					else {
+						LOGGER.debug("Not found DsmlMessage.");
+					}
+				}
+
+				// increment index for searching DsmlMessage if requestId is not available.
+				++index;
+			}
+		}
+
+		//
+		combineBatchResponses(batchResp, batchRespCombine);
+	}
 
     /**
      *
      * @param batchReq
      * @return boolean
      */
-    private String getFederatedRequestId(BatchRequest batchReq) {
+    private boolean isFederatedRequest(BatchRequest batchReq) {
         boolean isFederatedRequest = false;
-        String strOid = null;
-        if (null != batchReq && null != batchReq.getBatchRequests() && batchReq.getBatchRequests().size() > 0) {
-            DsmlMessage dsml = batchReq.getBatchRequests().get(0);
-            if (null != dsml && null != dsml.getControl() && dsml.getControl().size() > 0) {
-                Control ctrl = dsml.getControl().get(0);
-                if (null != dsml.getControl().get(0).getControlValue()) {
-                    isFederatedRequest = true;
-                    strOid = ctrl.getType();
-                }
+        if (null != batchReq) {
+			Iterator<DsmlMessage> dsmlMessageIterator = batchReq.getBatchRequests().iterator();
+			while (dsmlMessageIterator.hasNext()) {
+				DsmlMessage dsml = dsmlMessageIterator.next();
+				Iterator<Control> controlIterator = dsml.getControl().iterator();
+				while (controlIterator.hasNext()) {
+					Control ctrl = controlIterator.next();
+					if (ctrl.getControlValue() != null && StringUtils.equals(iheoid, ctrl.getType())) {
+						isFederatedRequest = true;
+					}
 
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(ctrl.getType());
-                    LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
-                } else if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(ctrl.getType());
-                    LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
-                }
-            }
+					if (LOGGER.isTraceEnabled()) {
+						LOGGER.trace(ctrl.getType());
+						LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
+					} else if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug(ctrl.getType());
+						LOGGER.trace("isFederatedRequest = " + isFederatedRequest);
+					}
+				}
+			}
         }
-        return strOid;
+        return isFederatedRequest;
     }
 
     @Override
@@ -236,36 +313,101 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
 
     /**
      *
-     * @param batchRequest
-     * @return Control
+     * @param dsmlMessage
+     * @return List<Control>
      */
-    private Control buildFederatedResponseDataCtrl(BatchRequest batchRequest) {
-        Control ctrl = new Control();
-        ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
-        ctrl.setCriticality(false);
-        FederatedSearchResponseData oFederatedSearchResponseData = new FederatedSearchResponseData();
-        FederatedResponseStatus oStatus = new FederatedResponseStatus();
-        oStatus.setDirectoryId(dirStaticId);
-        oStatus.setFederatedRequestId(iheoid);
-        oStatus.setResultMessage("Success");
-        oFederatedSearchResponseData.setFederatedResponseStatus(oStatus);
-        ctrl.setControlValue(convertToBytes(oFederatedSearchResponseData));
-        return ctrl;
+    private List<Control> buildFederatedResponseDataCtrlList(DsmlMessage dsmlMessage, LDAPResult ldapResult) {
+		List<Control> controlList = new ArrayList<>();
+
+		//
+		Iterator<Control> iterator = dsmlMessage.getControl().iterator();
+		while (iterator.hasNext()) {
+
+			// parse FederatedRequestData
+			Control control = iterator.next();
+			if (control.getControlValue() != null) {
+				LOGGER.debug("FederatedRequestData XML=" + new String((byte[]) control.getControlValue()));
+			}
+			FederatedRequestData federatedRequestData =
+					federationJaxb2Marshaller.unmarshalFederatedRequestData((byte[]) control.getControlValue());
+
+			//
+			if (federatedRequestData != null) {
+
+				Control ctrl = new Control();
+
+				//
+				ctrl.setType(iheoid);
+				ctrl.setCriticality(false);
+
+				FederatedSearchResponseData oFederatedSearchResponseData = new FederatedSearchResponseData();
+				FederatedResponseStatus oStatus = new FederatedResponseStatus();
+				oStatus.setDirectoryId(dirStaticId);
+				oStatus.setFederatedRequestId(federatedRequestData.getFederatedRequestId());
+
+				//
+				if (ldapResult != null && ldapResult.getResultCode() != null && ldapResult.getResultCode().getDescr()
+						!= null) {
+					oStatus.setResultCode(ldapResult.getResultCode().getDescr());
+					oStatus.setResultMessage(ldapResult.getResultCode().getDescr().toString());
+				} else {
+					oStatus.setResultCode(LDAPResultCode.SUCCESS);
+					oStatus.setResultMessage(LDAPResultCode.SUCCESS.toString());
+				}
+
+				//
+				oFederatedSearchResponseData.setFederatedResponseStatus(oStatus);
+
+				// marshall
+				ctrl.setControlValue(convertToBytes(oFederatedSearchResponseData));
+
+				//
+				controlList.add(ctrl);
+			}
+		}
+
+        return controlList;
     }
 
     /**
      *
-     * @param batchRequest
-     * @return Control
+     * @param dsmlMessage
+     * @return List<Control>
      */
-    private Control buildSearchResultEntryMetadaCtrl(BatchRequest batchRequest) {
-        Control ctrl = new Control();
-        ctrl.setType(batchRequest.getBatchRequests().get(0).getControl().get(0).getType());
-        ctrl.setCriticality(false);
-        SearchResultEntryMetadata oSearchResultEntryMetadata = new SearchResultEntryMetadata();
-        oSearchResultEntryMetadata.setDirectoryId(dirStaticId);
-        ctrl.setControlValue(convertToBytes(oSearchResultEntryMetadata));
-        return ctrl;
+    private List<Control> buildSearchResultEntryMetadaCtrlList(DsmlMessage dsmlMessage) {
+		List<Control> controlList = new ArrayList<>();
+
+		//
+		Iterator<Control> iterator = dsmlMessage.getControl().iterator();
+		while (iterator.hasNext()) {
+
+			// parse FederatedRequestData
+			Control control = iterator.next();
+			FederatedRequestData federatedRequestData =
+					federationJaxb2Marshaller.unmarshalFederatedRequestData((byte[]) control.getControlValue());
+
+			//
+			if (federatedRequestData != null) {
+
+				Control ctrl = new Control();
+
+				//
+				ctrl.setType(iheoid);
+				ctrl.setCriticality(false);
+
+				//
+				SearchResultEntryMetadata oSearchResultEntryMetadata = new SearchResultEntryMetadata();
+				oSearchResultEntryMetadata.setDirectoryId(dirStaticId);
+
+				// marshall
+				ctrl.setControlValue(convertToBytes(oSearchResultEntryMetadata));
+
+				//
+				controlList.add(ctrl);
+			}
+		}
+
+		return controlList;
     }
 
     /**
@@ -274,19 +416,10 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @return byte
      */
     private byte[] convertToBytes(FederatedSearchResponseData resData) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        OutputStream mout;
-        ObjectOutputStream out;
-        try {
-            mout = MimeUtility.encode(bos, "base64");
-            out = new ObjectOutputStream(mout);
-            out.writeObject(resData);
-            out.flush();
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-        }
-        byte[] bytes = bos.toByteArray();
-        return bytes;
+		gov.hhs.onc.pdti.server.xml.ObjectFactory factory = new gov.hhs.onc.pdti.server.xml.ObjectFactory();
+		StringResult result = new StringResult();
+		federationJaxb2Marshaller.marshal(factory.createFederatedSearchResponseData(resData), result);
+		return result.toString().getBytes();
     }
 
     /**
@@ -295,19 +428,10 @@ public class DirectoryServiceImpl extends AbstractDirectoryService<BatchRequest,
      * @return byte
      */
     private byte[] convertToBytes(SearchResultEntryMetadata resData) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        OutputStream mout;
-        ObjectOutputStream out;
-        try {
-            mout = MimeUtility.encode(bos, "base64");
-            out = new ObjectOutputStream(mout);
-            out.writeObject(resData);
-            out.flush();
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-        }
-        byte[] bytes = bos.toByteArray();
-        return bytes;
+		gov.hhs.onc.pdti.server.xml.ObjectFactory factory = new gov.hhs.onc.pdti.server.xml.ObjectFactory();
+		StringResult result = new StringResult();
+		federationJaxb2Marshaller.marshal(factory.createSearchResultEntryMetadata(resData), result);
+		return result.toString().getBytes();
     }
 
     @Autowired
